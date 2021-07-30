@@ -1,18 +1,59 @@
 server:
-  port: ${PORT:8080}
+  port: ${A6_GATEWAY_PORT:9080}
+
+logging:
+  level:
+    reactor:
+      netty: DEBUG
+    org:
+      springframework:
+#        web:
+#          reactive: DEBUG
+#        http:
+#          server:
+#            reactive: DEBUG
+        cloud:
+          gateway: DEBUG
+
+#security:
+#  oauth2:
+#    client:
+#      registration:
+#        gateway:
+#          provider: contributors
+#          client-id: gateway
+#          client-secret: secret
+#          authorization-grant-type: authorization_code
+#          redirect-uri-template: "{baseUrl}/login/oauth2/code/{registrationId}"
+#          scope: openid,profile,email,resource.read
+#      provider:
+#        contributors:
+#          authorization-uri: http://localhost:8090/uaa/oauth/authorize
+#          token-uri: http://uaa:8090/uaa/oauth/token
+#          user-info-uri: http://uaa:8090/uaa/userinfo
+#          user-name-attribute: sub
+#          jwk-set-uri: http://uaa:8090/uaa/token_keys
 
 spring:
   application:
     name: ${APP_NAME:gateway}
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-    
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: ${EUREKA_SERVER_URI:http://127.0.0.1:8761/eureka/}
-      
+#      httpclient:
+#        wiretap:true
+#      httpserver:
+#        wiretap: true
+      routes:
+        - id: contributors_route
+          uri: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:9081}
+          predicates:
+            - Path=/contributors/**
+          filters:
+            - RewritePath=/(?<segment>.*), /auth/realms/Angorasix/protocol/openid-connect/$\{segment}
+        - id: projectspresentation_route
+          uri: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
+          predicates:
+            - Path=/projects/presentations**
+          filters:
+            - RewritePath=/projects/presentations(?<segment>.*), /projects-presentation$\{segment}
 

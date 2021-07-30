@@ -12,6 +12,9 @@ target/
 .settings
 .springBeans
 .sts4-cache
+.pmd
+.pmdruleset
+.pmdruleset.xml
 
 ### IntelliJ IDEA ###
 .idea
