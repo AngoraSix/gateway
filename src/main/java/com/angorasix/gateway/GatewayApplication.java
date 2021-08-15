@@ -1,21 +1,16 @@
 package com.angorasix.gateway;
 
+import com.angorasix.gateway.infrastructure.config.api.GatewayApiConfigurations;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@RestController
+@EnableConfigurationProperties(value = {GatewayApiConfigurations.class})
 public class GatewayApplication {
 
-  public static void main(String[] args) {
-    SpringApplication.run(GatewayApplication.class, args);
-  }
-
-  @GetMapping("/")
-  public String and() {
-    return "Gerrrrrr!";
-  }
+    public static void main(String[] args) {
+        SpringApplication.run(GatewayApplication.class, args);
+    }
 
 }
