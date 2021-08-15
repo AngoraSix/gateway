@@ -7,42 +7,45 @@ logging:
       netty: DEBUG
     org:
       springframework:
-#        web:
-#          reactive: DEBUG
-#        http:
-#          server:
-#            reactive: DEBUG
+        #        web:
+        #          reactive: DEBUG
+        #        http:
+        #          server:
+        #            reactive: DEBUG
         cloud:
           gateway: DEBUG
 
-#security:
-#  oauth2:
-#    client:
-#      registration:
-#        gateway:
-#          provider: contributors
-#          client-id: gateway
-#          client-secret: secret
-#          authorization-grant-type: authorization_code
-#          redirect-uri-template: "{baseUrl}/login/oauth2/code/{registrationId}"
-#          scope: openid,profile,email,resource.read
-#      provider:
-#        contributors:
-#          authorization-uri: http://localhost:8090/uaa/oauth/authorize
-#          token-uri: http://uaa:8090/uaa/oauth/token
-#          user-info-uri: http://uaa:8090/uaa/userinfo
-#          user-name-attribute: sub
-#          jwk-set-uri: http://uaa:8090/uaa/token_keys
+configs:
+  api:
+    contributors:
+      baseURL: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:1111}
 
 spring:
+  config:
+    import: optional:file:env.properties
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${GATEWAY_SERVICE_OAUTH_SECURITY_ISSUER_URI:http://localhost:9081/auth/realms/Angorasix}
+      client:
+        registration:
+          contributors:
+            client-id: ${GATEWAY_SERVICE_OAUTH_CONTRIBUTORS_CLIENT_ID:contributorsClientId}
+            client-secret: ${GATEWAY_SERVICE_OAUTH_CONTRIBUTORS_CLIENT_SECRET:contributorsSecret}
+            authorization-grant-type: client_credentials
+            scope:
+        provider:
+          contributors:
+            token-uri: ${GATEWAY_SERVICE_OAUTH_CONTRIBUTORS_TOKEN_URI:http://localhost:9081/auth/realms/Angorasix/protocol/openid-connect/token}
   application:
     name: ${APP_NAME:gateway}
   cloud:
     gateway:
-#      httpclient:
-#        wiretap:true
-#      httpserver:
-#        wiretap: true
+      #      httpclient:
+      #        wiretap:true
+      #      httpserver:
+      #        wiretap: true
       routes:
         - id: contributors_route
           uri: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:9081}
@@ -50,6 +53,7 @@ spring:
             - Path=/contributors/**
           filters:
             - RewritePath=/(?<segment>.*), /auth/realms/Angorasix/protocol/openid-connect/$\{segment}
+            - ContributorsAdminRequest
         - id: projectspresentation_route
           uri: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
           predicates:

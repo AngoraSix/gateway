@@ -1,4 +1,4 @@
-package com.angorasix.gateway.security;
+package com.angorasix.gateway.infrastructure.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,7 @@ public class GatewaySecurityConfiguration {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/projects/presentations/**").permitAll()
                         .anyExchange().authenticated()
-                );
+                ).oauth2ResourceServer().jwt();
         return http.build();
     }
 }
