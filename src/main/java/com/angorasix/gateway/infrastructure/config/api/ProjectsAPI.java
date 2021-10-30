@@ -8,12 +8,12 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 @ConstructorBinding
 public class ProjectsAPI {
 
-    private final String coreBaseURL;
-    private final String presentationBaseURL;
+  private final String coreBaseURL;
+  private final String presentationBaseURL;
 
-    public ProjectsAPI(String coreBaseURL, String presentationBaseURL) {
-        this.coreBaseURL = coreBaseURL;
-        this.presentationBaseURL = presentationBaseURL;
-    }
+  public ProjectsAPI(String coreBaseURL, String presentationBaseURL) {
+    this.coreBaseURL = coreBaseURL;
+    this.presentationBaseURL = presentationBaseURL;
+  }
 
 }

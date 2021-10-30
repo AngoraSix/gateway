@@ -13,13 +13,13 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableWebFluxSecurity
 public class GatewaySecurityConfiguration {
 
-    @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        http
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/projects/presentations/**").permitAll()
-                        .anyExchange().authenticated()
-                ).oauth2ResourceServer().jwt();
-        return http.build();
-    }
+  @Bean
+  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+    http
+        .authorizeExchange(exchanges -> exchanges
+            .pathMatchers("/projects/presentations/**").permitAll()
+            .anyExchange().authenticated()
+        ).oauth2ResourceServer().jwt();
+    return http.build();
+  }
 }

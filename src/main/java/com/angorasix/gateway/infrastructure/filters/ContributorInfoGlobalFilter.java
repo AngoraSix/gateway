@@ -7,6 +7,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+/**
+ * <p>
+ * Filter that passes the "A6-Contributor" header downstream.
+ * </p>
+ *
+ * @author rozagerardo
+ */
 public class ContributorInfoGlobalFilter implements GlobalFilter, Ordered {
 
   private final WebClient client;

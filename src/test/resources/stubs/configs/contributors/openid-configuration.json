@@ -9,6 +9,8 @@
       "Content-Type": "application/json"
     },
     "bodyFileName": "openid-configurations.json",
-    "transformers" : [ "response-template" ]
+    "transformers": [
+      "response-template"
+    ]
   }
 }

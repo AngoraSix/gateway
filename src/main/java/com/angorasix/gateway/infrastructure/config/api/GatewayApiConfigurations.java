@@ -11,6 +11,6 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 @AllArgsConstructor
 public class GatewayApiConfigurations {
 
-    private final ContributorsAPI contributors;
-    private final ProjectsAPI projects;
+  private final ContributorsAPI contributors;
+  private final ProjectsAPI projects;
 }
