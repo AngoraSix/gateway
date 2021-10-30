@@ -18,7 +18,10 @@ logging:
 configs:
   api:
     contributors:
-      baseURL: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:1111}
+      baseURL: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:9081}
+    projects:
+      coreBaseURL: ${A6_GATEWAY_PROJECTS_CORE_URI:http://localhost:9082}
+      presentationBaseURL: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
 
 spring:
   config:
@@ -48,16 +51,16 @@ spring:
       #        wiretap: true
       routes:
         - id: contributors_route
-          uri: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:9081}
+          uri: ${configs.api.contributors.baseURL}
           predicates:
             - Path=/contributors/**
           filters:
             - RewritePath=/(?<segment>.*), /auth/realms/Angorasix/protocol/openid-connect/$\{segment}
             - ContributorsAdminRequest
         - id: projectspresentation_route
-          uri: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
+          uri: ${configs.api.projects.presentationBaseURL}
           predicates:
-            - Path=/projects/presentations**
+            - Path=/projects/presentations/**
           filters:
             - RewritePath=/projects/presentations(?<segment>.*), /projects-presentation$\{segment}
 

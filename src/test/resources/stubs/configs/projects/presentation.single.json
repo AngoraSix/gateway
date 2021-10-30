@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/projects-presentation/([a-zA-Z0-9]*)",
+    "queryParameters": {
+      "anyQueryParam": {
+        "equalTo": "anyValue"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "projects.presentation.single.json",
+    "transformers" : [ "response-template" ]
+  }
+}

@@ -12,4 +12,5 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 public class GatewayApiConfigurations {
 
     private final ContributorsAPI contributors;
+    private final ProjectsAPI projects;
 }

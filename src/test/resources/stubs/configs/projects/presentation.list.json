@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/projects-presentation",
+    "queryParameters": {
+      "anyQueryParam": {
+        "equalTo": "anyValue"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "projects.presentation.list.json"
+  }
+}

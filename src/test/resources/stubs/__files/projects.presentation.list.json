@@ -1,0 +1,19 @@
+[
+  {
+    "projectId": "projectId123",
+    "objective": "this is the objective of our Project",
+    "media": [
+      {
+        "type": "image",
+        "url": "https://imageshost/projectImage.jpg"
+      }
+    ],
+    "id": "6178bd0e1540a15c82438471"
+  },
+  {
+    "projectId": "projectId345",
+    "objective": "Another project, another objective",
+    "media": [],
+    "id": "6178bd0e1540a15c82438472"
+  }
+]
