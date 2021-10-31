@@ -5,12 +5,19 @@ import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
 
+/**
+ * <p>
+ * Base class containing all API configurations.
+ * </p>
+ *
+ * @author rozagerardo
+ */
 @ConfigurationProperties(prefix = "configs.api")
 @ConstructorBinding
 @Getter
 @AllArgsConstructor
 public class GatewayApiConfigurations {
 
-  private final ContributorsAPI contributors;
-  private final ProjectsAPI projects;
+  private final ContributorsApi contributors;
+  private final ProjectsApi projects;
 }

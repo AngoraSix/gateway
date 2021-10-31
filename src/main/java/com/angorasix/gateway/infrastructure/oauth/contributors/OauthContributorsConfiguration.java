@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.client.web.server.ServerOAuth2Authori
 
 /**
  * <p>
+ * Contributors OAuth2-related configurations.
  * </p>
  *
  * @author rozagerardo
@@ -18,19 +19,29 @@ import org.springframework.security.oauth2.client.web.server.ServerOAuth2Authori
 @Configuration
 public class OauthContributorsConfiguration {
 
+  /**
+   * <p>
+   * OAuth2AuthorizedClientManager setup.
+   * </p>
+   *
+   * @param clientRegistrationRepo Spring Security's Repository containing all ClientRegistrations
+   * @param authorizedClientRepo   Spring Security's Repository containing all authorized clients
+   *                               info
+   * @return a fully configured OAuth2 Authorized Client Manager
+   */
   @Bean
   public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
-      ReactiveClientRegistrationRepository clientRegistrationRepository,
-      ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+      final ReactiveClientRegistrationRepository clientRegistrationRepo,
+      final ServerOAuth2AuthorizedClientRepository authorizedClientRepo) {
 
-    ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+    final ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
         ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
             .clientCredentials()
             .build();
 
-    DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager =
+    final DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager =
         new DefaultReactiveOAuth2AuthorizedClientManager(
-            clientRegistrationRepository, authorizedClientRepository);
+            clientRegistrationRepo, authorizedClientRepo);
     authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
     return authorizedClientManager;

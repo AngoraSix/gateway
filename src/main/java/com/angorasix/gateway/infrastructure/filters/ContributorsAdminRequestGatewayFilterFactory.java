@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * <p>
+ * Filter to pass Contributor Admin Authorization header downstream to access restricted
+ * Contributors endpoints.
  * </p>
  *
  * @author rozagerardo
@@ -18,25 +20,26 @@ import org.springframework.stereotype.Component;
 public class ContributorsAdminRequestGatewayFilterFactory extends
     AbstractGatewayFilterFactory<ContributorsAdminRequestGatewayFilterFactory.Config> {
 
-  private ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
+  private final transient ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
 
   public ContributorsAdminRequestGatewayFilterFactory(
-      ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
+      final ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
     super(Config.class);
     this.authorizedClientManager = authorizedClientManager;
   }
 
   @Override
-  public GatewayFilter apply(Config config) {
+  public GatewayFilter apply(final Config config) {
     return (exchange, chain) ->
         ReactiveSecurityContextHolder.getContext().flatMap(authorization -> {
-          OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(
+          final OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+              .withClientRegistrationId(
                   "contributors")
               .principal(authorization.getAuthentication())
               .build();
           return this.authorizedClientManager.authorize(authorizeRequest).map(authorizedClient -> {
 
-            OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+            final OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
 
             exchange.getRequest().mutate()
                 .path(exchange.getRequest().getPath() + authorization.getAuthentication().getName())
@@ -47,6 +50,11 @@ public class ContributorsAdminRequestGatewayFilterFactory extends
 
   }
 
+  /**
+   * <p>
+   * Config class to use for AbstractGatewayFilterFactory.
+   * </p>
+   */
   public static class Config {
 
   }
