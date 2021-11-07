@@ -7,12 +7,19 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+/**
+ * <p>
+ * Filter that passes the "A6-Contributor" header downstream.
+ * </p>
+ *
+ * @author rozagerardo
+ */
 public class ContributorInfoGlobalFilter implements GlobalFilter, Ordered {
 
-  private final WebClient client;
+  private final transient WebClient client;
 
   public ContributorInfoGlobalFilter(final WebClient client) {
-    this.client = client;
+    this.client = client.mutate().build();
   }
 
   @Override
@@ -21,7 +28,7 @@ public class ContributorInfoGlobalFilter implements GlobalFilter, Ordered {
   }
 
   @Override
-  public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+  public Mono<Void> filter(final ServerWebExchange exchange, final GatewayFilterChain chain) {
     // exchange.getRequest().mutate().
 
     return client.get()
@@ -30,9 +37,9 @@ public class ContributorInfoGlobalFilter implements GlobalFilter, Ordered {
         .exchange()
         .log()
         .map(cr -> {
-          System.out
-              .println(String.format("RETRIEVED CONTRIBUTORS RESPONSE - STATUS %d - HEADERS: %s",
-                  cr.rawStatusCode(), cr.headers().header("A6-Contributor").get(0)));
+          // System.out
+          // .println(String.format("RETRIEVED CONTRIBUTORS RESPONSE - STATUS %d - HEADERS: %s",
+          // cr.rawStatusCode(), cr.headers().header("A6-Contributor").get(0)));
           exchange.getRequest()
               .mutate()
               .headers(hs -> hs.add("A6-Contributor", cr.headers().header("A6-Contributor").get(0)))

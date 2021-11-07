@@ -7,19 +7,31 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 /**
+ * <p>
+ * All Spring Security configuration.
+ * </p>
+ *
  * @author rozagerardo
  */
 @Configuration
 @EnableWebFluxSecurity
 public class GatewaySecurityConfiguration {
 
-    @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        http
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/projects/presentations/**").permitAll()
-                        .anyExchange().authenticated()
-                ).oauth2ResourceServer().jwt();
-        return http.build();
-    }
+  /**
+   * <p>
+   * Security Filter Chain setup.
+   * </p>
+   *
+   * @param http Spring's customizable ServerHttpSecurity bean
+   * @return fully configured SecurityWebFilterChain
+   */
+  @Bean
+  public SecurityWebFilterChain springSecurityFilterChain(final ServerHttpSecurity http) {
+    http
+        .authorizeExchange(exchanges -> exchanges
+            .pathMatchers("/projects/presentations/**").permitAll()
+            .anyExchange().authenticated()
+        ).oauth2ResourceServer().jwt();
+    return http.build();
+  }
 }

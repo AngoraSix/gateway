@@ -8,35 +8,55 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
 
+/**
+ * <p>
+ * Filter to pass Contributor Admin Authorization header downstream to access restricted
+ * Contributors endpoints.
+ * </p>
+ *
+ * @author rozagerardo
+ */
 @Component
-public class ContributorsAdminRequestGatewayFilterFactory extends AbstractGatewayFilterFactory<ContributorsAdminRequestGatewayFilterFactory.Config> {
+public class ContributorsAdminRequestGatewayFilterFactory extends
+    AbstractGatewayFilterFactory<ContributorsAdminRequestGatewayFilterFactory.Config> {
 
-    private ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
+  private final transient ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
 
-    public ContributorsAdminRequestGatewayFilterFactory(ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
-        super(Config.class);
-        this.authorizedClientManager = authorizedClientManager;
-    }
+  public ContributorsAdminRequestGatewayFilterFactory(
+      final ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
+    super(Config.class);
+    this.authorizedClientManager = authorizedClientManager;
+  }
 
-    @Override
-    public GatewayFilter apply(Config config) {
-        return (exchange, chain) ->
-                ReactiveSecurityContextHolder.getContext().flatMap(authorization -> {
-                    OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("contributors")
-                            .principal(authorization.getAuthentication())
-                            .build();
-                    return this.authorizedClientManager.authorize(authorizeRequest).map(authorizedClient -> {
+  @Override
+  public GatewayFilter apply(final Config config) {
+    return (exchange, chain) ->
+        ReactiveSecurityContextHolder.getContext().flatMap(authorization -> {
+          final OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+              .withClientRegistrationId(
+                  "contributors")
+              .principal(authorization.getAuthentication())
+              .build();
+          return this.authorizedClientManager.authorize(authorizeRequest).map(authorizedClient -> {
 
-                        OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+            final OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
 
-                        exchange.getRequest().mutate().path(exchange.getRequest().getPath() + authorization.getAuthentication().getName()).header("Authorization", accessToken.getTokenValue()).build();
-                        return exchange;
-                    });
-                }).flatMap(chain::filter);
+            exchange.getRequest().mutate()
+                .path(exchange.getRequest().getPath() + authorization.getAuthentication().getName())
+                .header("Authorization", accessToken.getTokenValue()).build();
+            return exchange;
+          });
+        }).flatMap(chain::filter);
 
-    }
+  }
 
-    public static class Config {
-    }
+  /**
+   * <p>
+   * Config class to use for AbstractGatewayFilterFactory.
+   * </p>
+   */
+  public static class Config {
+
+  }
 
 }

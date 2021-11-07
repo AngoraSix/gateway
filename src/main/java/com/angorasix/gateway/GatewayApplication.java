@@ -5,12 +5,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
+/**
+ * <p>
+ * Main Gateway app class, using Spring Boot features.
+ * </p>
+ *
+ * @author rozagerardo
+ */
 @SpringBootApplication
-@EnableConfigurationProperties(value = {GatewayApiConfigurations.class})
+@EnableConfigurationProperties({GatewayApiConfigurations.class})
 public class GatewayApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(GatewayApplication.class, args);
-    }
+  public static void main(final String[] args) {
+    SpringApplication.run(GatewayApplication.class, args);
+  }
 
 }

@@ -1,0 +1,11 @@
+{
+  "projectId": "projectId567",
+  "objective": "this is the objective of our Project",
+  "media": [
+    {
+      "type": "image",
+      "url": "https://imageshost/projectImage.jpg"
+    }
+  ],
+  "id": "{{{request.path.[1]}}}"
+}
