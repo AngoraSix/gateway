@@ -1,6 +1,7 @@
 package com.angorasix.gateway;
 
 import com.angorasix.gateway.infrastructure.config.api.GatewayApiConfigurations;
+import com.angorasix.gateway.infrastructure.config.auth.GatewayAuthConfigurations;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -13,7 +14,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  * @author rozagerardo
  */
 @SpringBootApplication
-@EnableConfigurationProperties({GatewayApiConfigurations.class})
+@EnableConfigurationProperties({GatewayApiConfigurations.class, GatewayAuthConfigurations.class})
 public class GatewayApplication {
 
   public static void main(final String[] args) {

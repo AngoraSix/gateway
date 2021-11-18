@@ -30,13 +30,11 @@ public class ContributorsAdminRequestGatewayFilterFactory extends
 
   @Override
   public GatewayFilter apply(final Config config) {
-    return (exchange, chain) ->
-        ReactiveSecurityContextHolder.getContext().flatMap(authorization -> {
-          final OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-              .withClientRegistrationId(
-                  "contributors")
-              .principal(authorization.getAuthentication())
-              .build();
+    return (exchange, chain) -> ReactiveSecurityContextHolder.getContext()
+        .flatMap(authorization -> {
+          final OAuth2AuthorizeRequest authorizeRequest =
+              OAuth2AuthorizeRequest.withClientRegistrationId(
+              "contributors").principal(authorization.getAuthentication()).build();
           return this.authorizedClientManager.authorize(authorizeRequest).map(authorizedClient -> {
 
             final OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
@@ -46,6 +44,9 @@ public class ContributorsAdminRequestGatewayFilterFactory extends
                 .header("Authorization", accessToken.getTokenValue()).build();
             return exchange;
           });
+        }).log().map(asd -> {
+          System.out.println("GERGERGER");
+          return asd;
         }).flatMap(chain::filter);
 
   }

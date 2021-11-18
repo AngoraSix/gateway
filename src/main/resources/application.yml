@@ -19,13 +19,18 @@ configs:
   api:
     contributors:
       baseURL: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:9081}
+      adminClientSecret: ${A6_GATEWAY_CONTRIBUTORS_ADMIN_SECRET:secret}
     projects:
       coreBaseURL: ${A6_GATEWAY_PROJECTS_CORE_URI:http://localhost:9082}
       presentationBaseURL: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
+  auth:
+    contributors:
+      authKsPass: ${A6_GATEWAY_CONTRIBUTORS_AUTH_KS_SECRET:ksSecret}
+      authKsAlias: ${A6_GATEWAY_CONTRIBUTORS_AUTH_KS_ALIAS:ksAlias}
 
 spring:
   config:
-    import: optional:file:env.properties
+    import: file:env.properties
   security:
     oauth2:
       resourceserver:
@@ -35,7 +40,7 @@ spring:
         registration:
           contributors:
             client-id: ${GATEWAY_SERVICE_OAUTH_CONTRIBUTORS_CLIENT_ID:contributorsClientId}
-            client-secret: ${GATEWAY_SERVICE_OAUTH_CONTRIBUTORS_CLIENT_SECRET:contributorsSecret}
+            client-authentication-method: private_key_jwt
             authorization-grant-type: client_credentials
             scope:
         provider:
