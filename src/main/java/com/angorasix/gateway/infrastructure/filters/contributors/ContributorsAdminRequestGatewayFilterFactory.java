@@ -1,4 +1,4 @@
-package com.angorasix.gateway.infrastructure.filters;
+package com.angorasix.gateway.infrastructure.filters.contributors;
 
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * <p>
- * Filter to pass Contributor Admin Authorization header downstream to access restricted
+ * Filter to use Contributors Admin authorization config in downstream restricted request to
  * Contributors endpoints.
  * </p>
  *
@@ -30,20 +30,17 @@ public class ContributorsAdminRequestGatewayFilterFactory extends
 
   @Override
   public GatewayFilter apply(final Config config) {
-    return (exchange, chain) ->
-        ReactiveSecurityContextHolder.getContext().flatMap(authorization -> {
-          final OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-              .withClientRegistrationId(
-                  "contributors")
-              .principal(authorization.getAuthentication())
-              .build();
+    return (exchange, chain) -> ReactiveSecurityContextHolder.getContext()
+        .flatMap(authorization -> {
+          final OAuth2AuthorizeRequest authorizeRequest =
+              OAuth2AuthorizeRequest.withClientRegistrationId(
+              "contributors").principal(authorization.getAuthentication()).build();
           return this.authorizedClientManager.authorize(authorizeRequest).map(authorizedClient -> {
 
             final OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
 
-            exchange.getRequest().mutate()
-                .path(exchange.getRequest().getPath() + authorization.getAuthentication().getName())
-                .header("Authorization", accessToken.getTokenValue()).build();
+            exchange.getRequest().mutate().header("Authorization", accessToken.getTokenValue())
+                .build();
             return exchange;
           });
         }).flatMap(chain::filter);

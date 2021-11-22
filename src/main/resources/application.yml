@@ -57,6 +57,7 @@ spring:
           filters:
             - RewritePath=/(?<segment>.*), /auth/realms/Angorasix/protocol/openid-connect/$\{segment}
             - ContributorsAdminRequest
+            - UserScopedRequest
         - id: projectspresentation_route
           uri: ${configs.api.projects.presentationBaseURL}
           predicates:
