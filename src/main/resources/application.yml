@@ -50,14 +50,23 @@ spring:
       #      httpserver:
       #        wiretap: true
       routes:
-        - id: contributors_route
+        - id: contributors_add_attribute_route
           uri: ${configs.api.contributors.baseURL}
           predicates:
-            - Path=/contributors/**
+            - Path=/contributors/attributes
+            - Method=PUT
           filters:
-            - RewritePath=/(?<segment>.*), /auth/realms/Angorasix/protocol/openid-connect/$\{segment}
+            - RewritePath=/contributors(?<segment>.*), /auth/admin/realms/Angorasix/users/{userId}
             - ContributorsAdminRequest
             - UserScopedRequest
+        - id: contributors_get_contributor
+          uri: http://localhost:9081
+          predicates:
+            - Path=/contributors/{contributorId}
+            - Method=GET
+          filters:
+            - RewritePath=/contributors/(?<segment>.*), /auth/admin/realms/Angorasix/users/$\{segment}
+            - ContributorsAdminRequest
         - id: projectspresentation_route
           uri: ${configs.api.projects.presentationBaseURL}
           predicates:
