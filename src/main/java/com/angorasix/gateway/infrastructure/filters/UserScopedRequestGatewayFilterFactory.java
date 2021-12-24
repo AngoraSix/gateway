@@ -36,8 +36,7 @@ public class UserScopedRequestGatewayFilterFactory extends
               authorization.getAuthentication().getName())
               : exchange.getRequest().getPath() + "/" + authorization.getAuthentication().getName();
 
-      exchange.getRequest().mutate().path(userScopedPath).build();
-      return exchange;
+      return exchange.mutate().request(req -> req.path(userScopedPath)).build();
     }).flatMap(chain::filter);
 
   }
