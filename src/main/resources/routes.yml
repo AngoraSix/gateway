@@ -1,9 +1,38 @@
-#spring:
-#  cloud:
-#    gateway:
-#      routes:
-#      - id: 
-#        uri: https://example.org
-#        filters:
-#        - Hystrix=myCommandName
+spring:
+  cloud:
+    gateway:
+      routes:
+        #  CONTRIBUTORS
+        - id: contributors_add_attribute_route
+          uri: ${configs.api.contributors.baseURL}
+          predicates:
+            - Path=/contributors/attributes
+            - Method=POST
+          filters:
+            - RewritePath=/contributors(?<segment>.*), /auth/admin/realms/Angorasix/users/:userId
+            - ModifyMethod=PUT
+            - ContributorsAdminRequest
+            - UserScopedRequest
+        - id: contributors_get_contributor
+          uri: http://localhost:9081
+          predicates:
+            - Path=/contributors/{contributorId}
+            - Method=GET
+          filters:
+            - RewritePath=/contributors/(?<segment>.*), /auth/admin/realms/Angorasix/users/$\{segment}
+            - ContributorsAdminRequest
+        # PROJECTS PRESENTATION
+        - id: projectspresentation_route
+          uri: ${configs.api.projects.presentationBaseURL}
+          predicates:
+            - Path=/projects/presentations/**
+          filters:
+            - RewritePath=/projects/presentations(?<segment>.*), /projects-presentation$\{segment}
+        # MEDIA
+        - id: media_route
+          uri: ${configs.api.media.baseURL}
+          predicates:
+            - Path=/media/**
+          filters:
+            - RewritePath=/media(?<segment>.*), /$\{segment}
 
