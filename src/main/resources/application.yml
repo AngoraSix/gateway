@@ -22,10 +22,12 @@ configs:
     projects:
       coreBaseURL: ${A6_GATEWAY_PROJECTS_CORE_URI:http://localhost:9082}
       presentationBaseURL: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
+    media:
+      baseURL: ${A6_GATEWAY_MEDIA_URI:http://localhost:9084}
 
 spring:
   config:
-    import: optional:file:env.properties
+    import: optional:file:env.properties,classpath:/routes.yml
   security:
     oauth2:
       resourceserver:
@@ -49,18 +51,3 @@ spring:
       #        wiretap:true
       #      httpserver:
       #        wiretap: true
-      routes:
-        - id: contributors_route
-          uri: ${configs.api.contributors.baseURL}
-          predicates:
-            - Path=/contributors/**
-          filters:
-            - RewritePath=/(?<segment>.*), /auth/realms/Angorasix/protocol/openid-connect/$\{segment}
-            - ContributorsAdminRequest
-        - id: projectspresentation_route
-          uri: ${configs.api.projects.presentationBaseURL}
-          predicates:
-            - Path=/projects/presentations/**
-          filters:
-            - RewritePath=/projects/presentations(?<segment>.*), /projects-presentation$\{segment}
-

@@ -12,6 +12,8 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 @ConstructorBinding
 public class ContributorsApi {
 
+  public static final String USER_ID_PLACEHOLDER = ":userId";
+
   private final String baseUrl;
   private static final String USERS_ENDPOINT = "/user";
 
@@ -30,4 +32,5 @@ public class ContributorsApi {
   public String getUsersEndpoint() {
     return USERS_ENDPOINT;
   }
+
 }

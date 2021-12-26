@@ -3,6 +3,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
 !**/src/test/**
+env.properties
 
 ### STS ###
 .apt_generated
@@ -33,5 +34,6 @@ build/
 ### VS Code ###
 .vscode/
 
-### OS ###
+### OSX ###
+.DS_Store
 .java-version
