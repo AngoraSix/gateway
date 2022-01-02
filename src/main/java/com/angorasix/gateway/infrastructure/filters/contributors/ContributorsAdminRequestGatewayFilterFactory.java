@@ -47,11 +47,8 @@ public class ContributorsAdminRequestGatewayFilterFactory extends
           return this.authorizedClientManager.authorize(authorizeRequest).map(authorizedClient -> {
             final OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
 
-            exchange.getRequest()
-                .mutate()
-                .header(
-                    "Authorization",
-                    "Bearer " + accessToken.getTokenValue()).build();
+            exchange.getRequest().mutate()
+                .header("Authorization", "Bearer " + accessToken.getTokenValue()).build();
             return exchange;
           });
         }).flatMap(chain::filter);

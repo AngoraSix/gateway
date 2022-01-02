@@ -21,6 +21,13 @@ spring:
           filters:
             - RewritePath=/contributors/(?<segment>.*), /auth/admin/realms/Angorasix/users/$\{segment}
             - ContributorsAdminRequest
+        # PROJECTS CORE
+        - id: projectscore_route
+          uri: ${configs.api.projects.coreBaseURL}
+          predicates:
+            - Path=/projects/core/**
+          filters:
+            - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
         # PROJECTS PRESENTATION
         - id: projectspresentation_route
           uri: ${configs.api.projects.presentationBaseURL}
