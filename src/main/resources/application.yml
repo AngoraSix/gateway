@@ -47,6 +47,12 @@ spring:
     name: ${APP_NAME:gateway}
   cloud:
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: ${GATEWAY_SERVICE_CORS_ALLOWEDORIGINS:http://localhost:90}
+            allowedMethods:
+              - GET
       #      httpclient:
       #        wiretap:true
       #      httpserver:
