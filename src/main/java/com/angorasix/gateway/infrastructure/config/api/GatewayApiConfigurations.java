@@ -21,4 +21,5 @@ public class GatewayApiConfigurations {
   private final ContributorsApi contributors;
   private final ProjectsApi projects;
   private final MediaApi media;
+  private final CommonApi common;
 }

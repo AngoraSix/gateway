@@ -17,6 +17,8 @@ logging:
 
 configs:
   api:
+    common:
+      contributorHeader: ${A6_GATEWAY_COMMON_CONTRIBUTORHEADER:A6-Contributor}
     contributors:
       baseURL: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:9081}
     projects:
