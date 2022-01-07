@@ -28,6 +28,7 @@ spring:
             - Path=/projects/core/**
           filters:
             - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
+            - AddContributorHeader
         # PROJECTS PRESENTATION
         - id: projectspresentation_route
           uri: ${configs.api.projects.presentationBaseURL}
