@@ -5,7 +5,6 @@ import static com.angorasix.gateway.infrastructure.config.api.ContributorsApi.US
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,12 +18,8 @@ import org.springframework.stereotype.Component;
 public class UserScopedRequestGatewayFilterFactory extends
     AbstractGatewayFilterFactory<UserScopedRequestGatewayFilterFactory.Config> {
 
-  private final transient ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
-
-  public UserScopedRequestGatewayFilterFactory(
-      final ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
+  public UserScopedRequestGatewayFilterFactory() {
     super(Config.class);
-    this.authorizedClientManager = authorizedClientManager;
   }
 
   @Override
