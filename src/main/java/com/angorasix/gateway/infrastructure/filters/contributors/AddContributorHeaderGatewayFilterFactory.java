@@ -8,8 +8,8 @@ import java.util.Base64;
 import java.util.Collections;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
@@ -37,9 +37,9 @@ public class AddContributorHeaderGatewayFilterFactory extends
 
   @Override
   public GatewayFilter apply(final Config config) {
-    return (exchange, chain) -> ReactiveSecurityContextHolder.getContext().map(authorization -> {
+    return (exchange, chain) -> ReactiveSecurityContextHolder.getContext().map(
+        SecurityContext::getAuthentication).map(auth -> {
       String jsonContributor;
-      Authentication auth = authorization.getAuthentication();
       A6ContributorHeader a6Contributor =
           (auth instanceof JwtAuthenticationToken) ? new A6ContributorHeader(
               auth.getName(),

@@ -5,6 +5,7 @@ import static com.angorasix.gateway.infrastructure.config.api.ContributorsApi.US
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,15 +25,17 @@ public class UserScopedRequestGatewayFilterFactory extends
 
   @Override
   public GatewayFilter apply(final Config config) {
-    return (exchange, chain) -> ReactiveSecurityContextHolder.getContext().map(authorization -> {
-      final String requestPath = exchange.getRequest().getPath().value();
-      final String userScopedPath =
-          requestPath.contains(USER_ID_PLACEHOLDER) ? requestPath.replace(USER_ID_PLACEHOLDER,
-              authorization.getAuthentication().getName())
-              : exchange.getRequest().getPath() + "/" + authorization.getAuthentication().getName();
+    return (exchange, chain) -> ReactiveSecurityContextHolder.getContext()
+        .map(SecurityContext::getAuthentication).map(authorization -> {
+          final String requestPath = exchange.getRequest().getPath().value();
+          final String userScopedPath =
+              requestPath.contains(USER_ID_PLACEHOLDER) ? requestPath.replace(USER_ID_PLACEHOLDER,
+                  authorization.getName())
+                  : exchange.getRequest().getPath() + "/" + authorization
+                      .getName();
 
-      return exchange.mutate().request(req -> req.path(userScopedPath)).build();
-    }).flatMap(chain::filter);
+          return exchange.mutate().request(req -> req.path(userScopedPath)).build();
+        }).flatMap(chain::filter);
 
   }
 
