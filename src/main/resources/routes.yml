@@ -22,12 +22,19 @@ spring:
             - RewritePath=/contributors/(?<segment>.*), /auth/admin/realms/Angorasix/users/$\{segment}
             - ContributorsAdminRequest
         # PROJECTS CORE
+        - id: projectscore_route--get
+          uri: ${configs.api.projects.coreBaseURL}
+          predicates:
+            - Path=/projects/core
+            - Method=GET
+          filters:
+            - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
         - id: projectscore_route
           uri: ${configs.api.projects.coreBaseURL}
           predicates:
             - Path=/projects/core/**
           filters:
-            - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
+            - RewritePath=/projects/core/(?<segment>.*), /projects-core/$\{segment}
             - AddContributorHeader
         # PROJECTS PRESENTATION
         - id: projectspresentation_route
@@ -36,6 +43,7 @@ spring:
             - Path=/projects/presentations/**
           filters:
             - RewritePath=/projects/presentations(?<segment>.*), /projects-presentation$\{segment}
+            - ComposeFieldApi=projectId,/projects/core,ids,project
         # MEDIA
         - id: media_route
           uri: ${configs.api.media.baseURL}
