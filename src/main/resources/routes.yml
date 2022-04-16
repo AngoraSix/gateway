@@ -32,18 +32,25 @@ spring:
         - id: projectscore_route
           uri: ${configs.api.projects.coreBaseURL}
           predicates:
-            - Path=/projects/core/**
+            - Path=/projects/core
           filters:
-            - RewritePath=/projects/core/(?<segment>.*), /projects-core/$\{segment}
+            - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
             - AddContributorHeader
         # PROJECTS PRESENTATION
+        - id: projectspresentation_route--get
+          uri: ${configs.api.projects.presentationBaseURL}
+          predicates:
+            - Path=/projects/presentations/**
+            - Method=GET
+          filters:
+            - RewritePath=/projects/presentations(?<segment>.*), /projects-presentation$\{segment}
+            - ComposeFieldApi=projectId,/projects/core,ids,project
         - id: projectspresentation_route
           uri: ${configs.api.projects.presentationBaseURL}
           predicates:
             - Path=/projects/presentations/**
           filters:
             - RewritePath=/projects/presentations(?<segment>.*), /projects-presentation$\{segment}
-            - ComposeFieldApi=projectId,/projects/core,ids,project
         # MEDIA
         - id: media_route
           uri: ${configs.api.media.baseURL}

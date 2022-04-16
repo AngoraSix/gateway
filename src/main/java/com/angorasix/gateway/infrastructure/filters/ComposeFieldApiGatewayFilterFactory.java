@@ -2,6 +2,8 @@ package com.angorasix.gateway.infrastructure.filters;
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 /**
  * <p>
@@ -39,13 +42,25 @@ public class ComposeFieldApiGatewayFilterFactory extends
       };
 
   @Value("${server.port:9080}")
-  int aPort;
+  int serverPort;
 
   @Override
   public GatewayFilter apply(final Config config) {
     return modifyResponseBodyFilter.apply((c) -> {
-      c.setRewriteFunction(List.class, List.class, (filterExchange, input) -> {
-        List<Map<String, Object>> castedInput = (List<Map<String, Object>>) input;
+      c.setRewriteFunction(Object.class, Object.class, (filterExchange, input) -> {
+        if(!filterExchange.getResponse().getStatusCode().is2xxSuccessful() || input == null) {
+          return Mono.justOrEmpty(input);
+        }
+        boolean isCollection = Collection.class.isAssignableFrom(input.getClass());
+        boolean isMap = Map.class.isAssignableFrom(input.getClass());
+        if (!isCollection && !isMap) {
+          throw new IllegalArgumentException(
+              String.format("Trying to compose input of type [%s]", input.getClass().getName()));
+        }
+        Collection<Map<String, Object>> castedInput =
+            isMap ? Collections.singletonList((Map<String, Object>) input)
+                : (List<Map<String, Object>>) input;
+
         //  extract base field values (usually ids) and join them in a "," separated string
         String baseFieldValues = castedInput.stream()
             .map(bodyMap -> (String) bodyMap.get(config.getOriginBaseField()))
@@ -57,29 +72,30 @@ public class ComposeFieldApiGatewayFilterFactory extends
         // Request to a path managed by the Gateway
         WebClient client = WebClient.create();
         return client.get()
-            .uri(UriComponentsBuilder.fromUriString("http://localhost").port(aPort)
+            .uri(UriComponentsBuilder.fromUriString("http://localhost").port(serverPort)
                 .path(config.getTargetGatewayPath())
                 .queryParam(config.getTargetQueryParam(), baseFieldValues).build().toUri())
             .header(HttpHeaders.AUTHORIZATION,
                 CollectionUtils.isNotEmpty(authHeader) ? authHeader.get(0) : null)
             .exchangeToMono(response -> response.bodyToMono(jsonType)
                 .map(targetEntries -> {
-                  // create a Map using the base field values as keys fo easy access
+                  // create a Map using the base fielØd values as keys fo easy access
                   Map<String, Map> targetEntriesMap = targetEntries.stream().collect(
                       Collectors.toMap(pr -> (String) pr.get("id"), pr -> pr));
                   // compose the origin body using the requested target entries
-                  return castedInput.stream().map(originEntries -> {
+                  List mappedEntries = castedInput.stream().map(originEntries -> {
                     originEntries.put(config.getComposeField(),
                         targetEntriesMap.get(originEntries.get(config.getOriginBaseField())));
                     return originEntries;
                   }).collect(Collectors.toList());
+                  return isMap ? mappedEntries.get(0) : mappedEntries;
                 })
             );
       });
     });
   }
 
-  ;
+//  private processInputList(List<Map<String, Object>>)
 
   @Override
   public List<String> shortcutFieldOrder() {
