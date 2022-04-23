@@ -25,7 +25,7 @@ spring:
         - id: projectscore_route--get
           uri: ${configs.api.projects.coreBaseURL}
           predicates:
-            - Path=/projects/core
+            - Path=/projects/core/**
             - Method=GET
           filters:
             - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
