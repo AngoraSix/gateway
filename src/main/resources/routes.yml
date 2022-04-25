@@ -22,6 +22,14 @@ spring:
             - RewritePath=/contributors/(?<segment>.*), /auth/admin/realms/Angorasix/users/$\{segment}
             - ContributorsAdminRequest
         # PROJECTS CORE
+        - id: projectscore_route--get--shallow
+          uri: ${configs.api.projects.coreBaseURL}
+          predicates:
+            - Path=/projects/core/**
+            - Method=GET
+            - Query=shallow
+          filters:
+            - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
         - id: projectscore_route--get
           uri: ${configs.api.projects.coreBaseURL}
           predicates:
@@ -29,6 +37,7 @@ spring:
             - Method=GET
           filters:
             - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
+            - ComposeFieldApi=id,/projects/presentations,projectIds,shallow,projectId,presentations
         - id: projectscore_route
           uri: ${configs.api.projects.coreBaseURL}
           predicates:
@@ -37,6 +46,14 @@ spring:
             - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
             - AddContributorHeader
         # PROJECTS PRESENTATION
+        - id: projectspresentation_route--get--shallow
+          uri: ${configs.api.projects.presentationBaseURL}
+          predicates:
+            - Path=/projects/presentations/**
+            - Method=GET
+            - Query=shallow
+          filters:
+            - RewritePath=/projects/presentations(?<segment>.*), /projects-presentation$\{segment}
         - id: projectspresentation_route--get
           uri: ${configs.api.projects.presentationBaseURL}
           predicates:
@@ -44,7 +61,7 @@ spring:
             - Method=GET
           filters:
             - RewritePath=/projects/presentations(?<segment>.*), /projects-presentation$\{segment}
-            - ComposeFieldApi=projectId,/projects/core,ids,project
+            - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         - id: projectspresentation_route
           uri: ${configs.api.projects.presentationBaseURL}
           predicates:

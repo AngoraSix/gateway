@@ -1,6 +1,5 @@
 package com.angorasix.gateway.infrastructure.filters;
 
-import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,6 +14,7 @@ import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyResponseBo
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
@@ -48,7 +48,7 @@ public class ComposeFieldApiGatewayFilterFactory extends
   public GatewayFilter apply(final Config config) {
     return modifyResponseBodyFilter.apply((c) -> {
       c.setRewriteFunction(Object.class, Object.class, (filterExchange, input) -> {
-        if(!filterExchange.getResponse().getStatusCode().is2xxSuccessful() || input == null) {
+        if (!filterExchange.getResponse().getStatusCode().is2xxSuccessful() || input == null) {
           return Mono.justOrEmpty(input);
         }
         boolean isCollection = Collection.class.isAssignableFrom(input.getClass());
@@ -74,14 +74,18 @@ public class ComposeFieldApiGatewayFilterFactory extends
         return client.get()
             .uri(UriComponentsBuilder.fromUriString("http://localhost").port(serverPort)
                 .path(config.getTargetGatewayPath())
-                .queryParam(config.getTargetQueryParam(), baseFieldValues).build().toUri())
+                .queryParam(config.getTargetComposeQueryParam(), baseFieldValues)
+                .queryParams(CollectionUtils.toMultiValueMap(
+                    config.getTargetAdditionalQueryParams()))
+                .build().toUri())
             .header(HttpHeaders.AUTHORIZATION,
-                CollectionUtils.isNotEmpty(authHeader) ? authHeader.get(0) : null)
+                !CollectionUtils.isEmpty(authHeader) ? authHeader.get(0) : null)
             .exchangeToMono(response -> response.bodyToMono(jsonType)
                 .map(targetEntries -> {
-                  // create a Map using the base fielØd values as keys fo easy access
+                  // create a Map using the base field values as keys fo easy access
                   Map<String, Map> targetEntriesMap = targetEntries.stream().collect(
-                      Collectors.toMap(pr -> (String) pr.get("id"), pr -> pr));
+                      Collectors.toMap(
+                          pr -> (String) pr.get(config.getTargetResponseMappingField()), pr -> pr));
                   // compose the origin body using the requested target entries
                   List mappedEntries = castedInput.stream().map(originEntries -> {
                     originEntries.put(config.getComposeField(),
@@ -95,12 +99,10 @@ public class ComposeFieldApiGatewayFilterFactory extends
     });
   }
 
-//  private processInputList(List<Map<String, Object>>)
-
   @Override
   public List<String> shortcutFieldOrder() {
-    return Arrays.asList("originBaseField", "targetGatewayPath", "targetQueryParam",
-        "composeField");
+    return Arrays.asList("originBaseField", "targetGatewayPath", "targetComposeQueryParam",
+        "targetAdditionalQueryParams", "targetResponseMappingField", "composeField");
   }
 
   /**
@@ -112,7 +114,9 @@ public class ComposeFieldApiGatewayFilterFactory extends
 
     private String originBaseField;
     private String targetGatewayPath;
-    private String targetQueryParam;
+    private String targetComposeQueryParam;
+    private Map<String, List<String>> targetAdditionalQueryParams;
+    private String targetResponseMappingField;
     private String composeField;
 
     public Config() {
@@ -134,12 +138,12 @@ public class ComposeFieldApiGatewayFilterFactory extends
       this.targetGatewayPath = targetGatewayPath;
     }
 
-    public String getTargetQueryParam() {
-      return targetQueryParam;
+    public String getTargetComposeQueryParam() {
+      return targetComposeQueryParam;
     }
 
-    public void setTargetQueryParam(String targetQueryParam) {
-      this.targetQueryParam = targetQueryParam;
+    public void setTargetComposeQueryParam(String targetComposeQueryParam) {
+      this.targetComposeQueryParam = targetComposeQueryParam;
     }
 
     public String getComposeField() {
@@ -148,6 +152,25 @@ public class ComposeFieldApiGatewayFilterFactory extends
 
     public void setComposeField(String composeField) {
       this.composeField = composeField;
+    }
+
+    public Map<String, List<String>> getTargetAdditionalQueryParams() {
+      return targetAdditionalQueryParams;
+    }
+
+    public void setTargetAdditionalQueryParams(String targetAdditionalQueryParams) {
+      this.targetAdditionalQueryParams = Arrays.stream(targetAdditionalQueryParams.split("&"))
+          .map(param -> param.split("="))
+          .collect(Collectors.toMap(p -> p[0],
+              p -> Collections.singletonList(p.length > 1 ? p[1] : "")));
+    }
+
+    public String getTargetResponseMappingField() {
+      return targetResponseMappingField;
+    }
+
+    public void setTargetResponseMappingField(String targetResponseMappingField) {
+      this.targetResponseMappingField = targetResponseMappingField;
     }
   }
 
