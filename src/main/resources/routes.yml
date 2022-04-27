@@ -37,7 +37,7 @@ spring:
             - Method=GET
           filters:
             - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
-            - ComposeFieldApi=id,/projects/presentations,projectIds,shallow,projectId,presentations
+            - ComposeFieldApi=id,/projects/presentations,projectIds,shallow,projectId,presentations,list
         - id: projectscore_route
           uri: ${configs.api.projects.coreBaseURL}
           predicates:

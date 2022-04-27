@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -83,9 +84,13 @@ public class ComposeFieldApiGatewayFilterFactory extends
             .exchangeToMono(response -> response.bodyToMono(jsonType)
                 .map(targetEntries -> {
                   // create a Map using the base field values as keys fo easy access
-                  Map<String, Map> targetEntriesMap = targetEntries.stream().collect(
+                  Map<String, Object> targetEntriesMap = targetEntries.stream().collect(
                       Collectors.toMap(
-                          pr -> (String) pr.get(config.getTargetResponseMappingField()), pr -> pr));
+                          pr -> (String) pr.get(config.getTargetResponseMappingField()),
+                          pr -> config.isListComposeField() ? Collections.singletonList(pr) : pr,
+                          (pr1, pr2) -> config.isListComposeField() ? Stream.of(pr1, pr2)
+                              .flatMap(s -> ((List) s).stream())
+                              .collect(Collectors.toList()) : pr1));
                   // compose the origin body using the requested target entries
                   List mappedEntries = castedInput.stream().map(originEntries -> {
                     originEntries.put(config.getComposeField(),
@@ -102,7 +107,8 @@ public class ComposeFieldApiGatewayFilterFactory extends
   @Override
   public List<String> shortcutFieldOrder() {
     return Arrays.asList("originBaseField", "targetGatewayPath", "targetComposeQueryParam",
-        "targetAdditionalQueryParams", "targetResponseMappingField", "composeField");
+        "targetAdditionalQueryParams", "targetResponseMappingField", "composeField",
+        "composeFieldType");
   }
 
   /**
@@ -118,6 +124,7 @@ public class ComposeFieldApiGatewayFilterFactory extends
     private Map<String, List<String>> targetAdditionalQueryParams;
     private String targetResponseMappingField;
     private String composeField;
+    private boolean isListComposeField; // composeFieldType : "list", or otherwise JSON object
 
     public Config() {
     }
@@ -171,6 +178,14 @@ public class ComposeFieldApiGatewayFilterFactory extends
 
     public void setTargetResponseMappingField(String targetResponseMappingField) {
       this.targetResponseMappingField = targetResponseMappingField;
+    }
+
+    public boolean isListComposeField() {
+      return isListComposeField;
+    }
+
+    public void setComposeFieldType(String composeFieldType) {
+      this.isListComposeField = composeFieldType != null && "list".equals(composeFieldType);
     }
   }
 
