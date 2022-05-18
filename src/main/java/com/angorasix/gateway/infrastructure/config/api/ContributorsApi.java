@@ -15,10 +15,14 @@ public class ContributorsApi {
   public static final String USER_ID_PLACEHOLDER = ":userId";
 
   private final String baseUrl;
+  private final String inBasePath;
+  private final String outBasePath;
   private static final String USERS_ENDPOINT = "/user";
 
-  public ContributorsApi(final String baseUrl) {
+  public ContributorsApi(final String baseUrl, String inBasePath, String outBasePath) {
     this.baseUrl = baseUrl;
+    this.inBasePath = inBasePath;
+    this.outBasePath = outBasePath;
   }
 
   public String generateAddUserAttributeUri() {
@@ -33,4 +37,11 @@ public class ContributorsApi {
     return USERS_ENDPOINT;
   }
 
+  public String getInBasePath() {
+    return inBasePath;
+  }
+
+  public String getOutBasePath() {
+    return outBasePath;
+  }
 }
