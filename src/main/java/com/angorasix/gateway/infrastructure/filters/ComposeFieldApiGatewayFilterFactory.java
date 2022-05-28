@@ -165,6 +165,11 @@ public class ComposeFieldApiGatewayFilterFactory extends
       return targetAdditionalQueryParams;
     }
 
+    /**
+     * Setter to translate the String input to query params as Map
+     *
+     * @param targetAdditionalQueryParams
+     */
     public void setTargetAdditionalQueryParams(String targetAdditionalQueryParams) {
       this.targetAdditionalQueryParams = Arrays.stream(targetAdditionalQueryParams.split("&"))
           .map(param -> param.split("="))
