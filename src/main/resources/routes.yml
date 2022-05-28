@@ -9,7 +9,7 @@ spring:
             - Path=/contributors/attributes
             - Method=POST
           filters:
-            - RewritePath=/contributors(?<segment>.*), /auth/admin/realms/Angorasix/users/:userId
+            - RewritePath=/${configs.api.contributors.inBasePath}(?<segment>.*), /${configs.api.contributors.outBasePath}/:userId
             - ModifyMethod=PUT
             - ContributorsAdminRequest
             - UserScopedRequest
@@ -19,43 +19,77 @@ spring:
             - Path=/contributors/{contributorId}
             - Method=GET
           filters:
-            - RewritePath=/contributors/(?<segment>.*), /auth/admin/realms/Angorasix/users/$\{segment}
+            - RewritePath=/${configs.api.contributors.inBasePath}/(?<segment>.*), /${configs.api.contributors.outBasePath}/$\{segment}
             - ContributorsAdminRequest
         # PROJECTS CORE
+        - id: projectscore_route--get--shallow
+          uri: ${configs.api.projects.coreBaseURL}
+          predicates:
+            - Path=/projects/core/**
+            - Method=GET
+            - Query=shallow
+          filters:
+            - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
         - id: projectscore_route--get
           uri: ${configs.api.projects.coreBaseURL}
           predicates:
             - Path=/projects/core/**
             - Method=GET
           filters:
-            - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
+            - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
+            - ComposeFieldApi=id,/projects/presentations,projectIds,shallow,projectId,presentations,list
+        - id: projects_route--update
+          uri: ${configs.api.projects.coreBaseURL}
+          predicates:
+            - Path=/projects/core/{projectId}
+            - Method=PUT
+          filters:
+            - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
+            - ValidateIsAdmin=id
+            - AddContributorHeader
         - id: projectscore_route
           uri: ${configs.api.projects.coreBaseURL}
           predicates:
             - Path=/projects/core
           filters:
-            - RewritePath=/projects/core(?<segment>.*), /projects-core$\{segment}
+            - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
             - AddContributorHeader
         # PROJECTS PRESENTATION
+        - id: projectspresentation_route--get--shallow
+          uri: ${configs.api.projects.presentationBaseURL}
+          predicates:
+            - Path=/projects/presentations/**
+            - Method=GET
+            - Query=shallow
+          filters:
+            - RewritePath=/${configs.api.projects.presentationInBasePath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
         - id: projectspresentation_route--get
           uri: ${configs.api.projects.presentationBaseURL}
           predicates:
             - Path=/projects/presentations/**
             - Method=GET
           filters:
-            - RewritePath=/projects/presentations(?<segment>.*), /projects-presentation$\{segment}
-            - ComposeFieldApi=projectId,/projects/core,ids,project
+            - RewritePath=/${configs.api.projects.presentationInBasePath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
+            - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
+        - id: projectspresentation_route--update
+          uri: ${configs.api.projects.presentationBaseURL}
+          predicates:
+            - Path=/projects/presentations/{projectPresentationId}
+            - Method=PUT
+          filters:
+            - RewritePath=/${configs.api.projects.presentationInBasePath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
+            - ValidateIsAdmin=projectId
         - id: projectspresentation_route
           uri: ${configs.api.projects.presentationBaseURL}
           predicates:
             - Path=/projects/presentations/**
           filters:
-            - RewritePath=/projects/presentations(?<segment>.*), /projects-presentation$\{segment}
+            - RewritePath=/${configs.api.projects.presentationInBasePath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
         # MEDIA
         - id: media_route
           uri: ${configs.api.media.baseURL}
           predicates:
             - Path=/media/**
           filters:
-            - RewritePath=/media(?<segment>.*), /$\{segment}
+            - RewritePath=/${configs.api.media.inBasePath}(?<segment>.*), /${configs.api.media.outBasePath}$\{segment}
 
