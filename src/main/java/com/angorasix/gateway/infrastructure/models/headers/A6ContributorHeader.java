@@ -12,6 +12,7 @@ public class A6ContributorHeader {
 
   private final String contributorId;
   private final Map<String, String> attributes;
+  private boolean isProjectAdmin = false;
 
   public A6ContributorHeader(String contributorId,
       Map<String, String> attributes) {
@@ -25,5 +26,13 @@ public class A6ContributorHeader {
 
   public Map<String, String> getAttributes() {
     return attributes;
+  }
+
+  public boolean isProjectAdmin() {
+    return isProjectAdmin;
+  }
+
+  public void setProjectAdmin(boolean projectAdmin) {
+    isProjectAdmin = projectAdmin;
   }
 }
