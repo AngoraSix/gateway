@@ -4,12 +4,8 @@ import com.angorasix.gateway.infrastructure.config.api.GatewayApiConfigurations;
 import com.angorasix.gateway.infrastructure.config.infrastructure.InfrastructureConfigurations;
 import com.angorasix.gateway.infrastructure.models.headers.A6ContributorHeaderHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Component;
@@ -31,13 +27,6 @@ public class AddContributorHeaderGatewayFilterFactory extends
   private ObjectMapper objectMapper;
 
   private InfrastructureConfigurations infrastructureConfigs;
-
-  // is admin checker
-  private static final String PROJECT_PRESENTATION_ID_PARAM_PLACEHOLDER = ":projectId";
-
-  ParameterizedTypeReference<Map<String, Object>> jsonType =
-      new ParameterizedTypeReference<Map<String, Object>>() {
-      };
 
   public AddContributorHeaderGatewayFilterFactory(ObjectMapper objectMapper,
       GatewayApiConfigurations apiConfigurations,
@@ -68,24 +57,9 @@ public class AddContributorHeaderGatewayFilterFactory extends
 
   }
 
-  @Override
-  public List<String> shortcutFieldOrder() {
-    return Arrays.asList("checkIsAdmin");
-  }
-
   public static class Config {
 
-    private Boolean checkIsAdmin = false;
-
     public Config() {
-    }
-
-    public Boolean getCheckIsAdmin() {
-      return checkIsAdmin;
-    }
-
-    public void setCheckIsAdmin(Boolean checkIsAdmin) {
-      this.checkIsAdmin = checkIsAdmin;
     }
   }
 }

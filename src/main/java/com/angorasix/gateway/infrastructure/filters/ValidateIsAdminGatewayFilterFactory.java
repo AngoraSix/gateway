@@ -6,6 +6,7 @@ import com.angorasix.gateway.infrastructure.config.internalroutes.GatewayInterna
 import com.angorasix.gateway.infrastructure.models.headers.A6ContributorHeaderHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -72,43 +73,45 @@ public class ValidateIsAdminGatewayFilterFactory extends
   @Override
   public GatewayFilter apply(final Config config) {
     return modifyRequestBodyFilter.apply((c) ->
-        c.setRewriteFunction(Object.class, Object.class, (filterExchange, input) -> ReactiveSecurityContextHolder.getContext().map(
-            SecurityContext::getAuthentication).map(
-            auth -> A6ContributorHeaderHelper.buildAndEncodeFromAuthentication(auth,
-                objectMapper)).flatMap(encodedA6Contributor -> {
-          String projectId = obtainProjectId(filterExchange, input,
-              config.getProjectIdBodyField());
-          String resolvedAdminEndpoint = internalRoutesConfigs.getProjectsCore()
-              .getIsAdminEndpoint()
-              .replace(PROJECT_PRESENTATION_ID_PARAM_PLACEHOLDER, projectId);
-          // Request to a path managed by the Gateway
-          WebClient client = WebClient.create();
-          return client.get()
-              .uri(UriComponentsBuilder.fromUriString(apiConfigs.getProjects().getCoreBaseUrl())
-                  .pathSegment(apiConfigs.getProjects().getCoreOutBasePath(),
-                      resolvedAdminEndpoint)
-                  .build().toUri())
-              .header(apiConfigs.getCommon().getContributorHeader(),
-                  encodedA6Contributor)
-              .exchangeToMono(response -> response.bodyToMono(jsonType)).map(isAdminResponse ->
-              {
-                boolean isAdmin =
-                    isAdminResponse.containsKey(IS_ADMIN_RESPONSE_FIELD) && isAdminResponse.get(
-                            IS_ADMIN_RESPONSE_FIELD)
-                        .equals(true);
-                if (!config.isNonAdminRequestAllowed() && !isAdmin) {
-                  throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                      "Only Project admin can proceed");
-                }
-                filterExchange.getAttributes()
-                    .put(this.infrastructureConfigs.getExchangeAttributes().getIsProjectAdmin(),
-                        isAdmin);
-                return Optional.ofNullable(input).orElse("");
-              });
-        }).switchIfEmpty(
-            config.isAnonymousRequestAllowed() ? Mono.justOrEmpty(input)
-                : Mono.error(new IllegalArgumentException(
-                    "Validate Project Admin is not an optional step for this endpoint")))));
+        c.setRewriteFunction(Object.class, Object.class,
+            (filterExchange, input) -> ReactiveSecurityContextHolder.getContext().map(
+                SecurityContext::getAuthentication).map(
+                auth -> A6ContributorHeaderHelper.buildAndEncodeFromAuthentication(auth,
+                    objectMapper)).flatMap(encodedA6Contributor -> {
+              String projectId = obtainProjectId(filterExchange, input,
+                  config.getProjectIdBodyField());
+              String resolvedAdminEndpoint = internalRoutesConfigs.getProjectsCore()
+                  .getIsAdminEndpoint()
+                  .replace(PROJECT_PRESENTATION_ID_PARAM_PLACEHOLDER, projectId);
+              // Request to a path managed by the Gateway
+              WebClient client = WebClient.create();
+              return client.get()
+                  .uri(UriComponentsBuilder.fromUriString(apiConfigs.getProjects().getCoreBaseUrl())
+                      .pathSegment(apiConfigs.getProjects().getCoreOutBasePath(),
+                          resolvedAdminEndpoint)
+                      .build().toUri())
+                  .header(apiConfigs.getCommon().getContributorHeader(),
+                      encodedA6Contributor)
+                  .exchangeToMono(response -> response.bodyToMono(jsonType))
+                  .switchIfEmpty(Mono.just(Collections.emptyMap())).map(isAdminResponse ->
+                  {
+                    boolean isAdmin =
+                        isAdminResponse.containsKey(IS_ADMIN_RESPONSE_FIELD) && isAdminResponse.get(
+                                IS_ADMIN_RESPONSE_FIELD)
+                            .equals(true);
+                    if (!config.isNonAdminRequestAllowed() && !isAdmin) {
+                      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                          "Only Project admin can proceed");
+                    }
+                    filterExchange.getAttributes()
+                        .put(this.infrastructureConfigs.getExchangeAttributes().getIsProjectAdmin(),
+                            isAdmin);
+                    return Optional.ofNullable(input).orElse(Collections.emptyMap());
+                  });
+            }).switchIfEmpty(
+                config.isAnonymousRequestAllowed() ? Mono.justOrEmpty(input)
+                    : Mono.error(new IllegalArgumentException(
+                        "Validate Project Admin is not an optional step for this endpoint")))));
   }
 
   private String obtainProjectId(ServerWebExchange exchange, Object input,

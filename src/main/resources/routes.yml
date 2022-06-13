@@ -93,8 +93,17 @@ spring:
             - Method=GET
           filters:
             - ValidateIsAdmin=true,true
-            - AddContributorHeader=true
+            - AddContributorHeader
             - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
+        - id: clubs_route--post-add-member
+          uri: ${configs.api.clubs.baseURL}
+          predicates:
+            - Path=/clubs/well-known/{projectId}/{type}/add-member
+            - Method=POST
+          filters:
+            - ValidateIsAdmin=false,true
+            - AddContributorHeader
+            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
         # MEDIA
         - id: media_route
           uri: ${configs.api.media.baseURL}
