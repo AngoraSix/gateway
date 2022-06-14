@@ -45,7 +45,7 @@ spring:
             - Method=PUT
           filters:
             - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
-            - ValidateIsAdmin=id
+            - ValidateIsAdmin=false,false,id
             - AddContributorHeader
         - id: projectscore_route
           uri: ${configs.api.projects.coreBaseURL}
@@ -78,13 +78,32 @@ spring:
             - Method=PUT
           filters:
             - RewritePath=/${configs.api.projects.presentationInBasePath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
-            - ValidateIsAdmin=projectId
+            - ValidateIsAdmin=false,false,projectId
         - id: projectspresentation_route
           uri: ${configs.api.projects.presentationBaseURL}
           predicates:
             - Path=/projects/presentations/**
           filters:
             - RewritePath=/${configs.api.projects.presentationInBasePath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
+        # CLUBS
+        - id: clubs_route--get-wellknown-club
+          uri: ${configs.api.clubs.baseURL}
+          predicates:
+            - Path=/clubs/well-known/{projectId}/**
+            - Method=GET
+          filters:
+            - ValidateIsAdmin=true,true
+            - AddContributorHeader
+            - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
+        - id: clubs_route--post-add-member
+          uri: ${configs.api.clubs.baseURL}
+          predicates:
+            - Path=/clubs/well-known/{projectId}/{type}/add-member
+            - Method=POST
+          filters:
+            - ValidateIsAdmin=false,true
+            - AddContributorHeader
+            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
         # MEDIA
         - id: media_route
           uri: ${configs.api.media.baseURL}

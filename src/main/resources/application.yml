@@ -34,9 +34,16 @@ configs:
       baseURL: ${A6_GATEWAY_MEDIA_URI:http://localhost:9084}
       inBasePath: ${A6_GATEWAY_MEDIA_INBASEPATH:media}
       outBasePath: ${A6_GATEWAY_MEDIA_OUTBASEPATH:}
+    clubs:
+      baseURL: ${A6_GATEWAY_CLUBS_URI:http://localhost:9085}
+      inBasePath: ${A6_GATEWAY_CLUBS_INBASEPATH:clubs}
+      outBasePath: ${A6_GATEWAY_CLUBS_OUTBASEPATH:clubs}
   internal-routes:
     projectscore:
       isAdminEndpoint: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCORE_ISADMIN::projectId/isAdmin}
+  infrastructure:
+    exchangeAttributes:
+      isProjectAdmin: ${A6_GATEWAY_INFRASTRUCTURE_EXCHANGEATTRIBUTES_ISPROJECTADMIN:org.a6.gateway.infrastructure.exchangeAttributes.isProjectAdmin}
 
 spring:
   config:
