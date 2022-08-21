@@ -95,6 +95,15 @@ spring:
             - ValidateIsAdmin=true,true
             - AddContributorHeader
             - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
+        - id: clubs_route--patch-wellknown-club
+          uri: ${configs.api.clubs.baseURL}
+          predicates:
+            - Path=/clubs/well-known/{projectId}/{type}
+            - Method=PATCH
+          filters:
+            - ValidateIsAdmin=false,true
+            - AddContributorHeader
+            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
         - id: clubs_route--post-add-member
           uri: ${configs.api.clubs.baseURL}
           predicates:
