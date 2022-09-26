@@ -36,10 +36,10 @@ import reactor.core.publisher.Mono;
 public class ValidateIsAdminGatewayFilterFactory extends
     AbstractGatewayFilterFactory<ValidateIsAdminGatewayFilterFactory.Config> {
 
-  private static final String PROJECT_PRESENTATION_ID_PARAM = "projectId";
+  private static final String PROJECT_ID_PARAM = "projectId";
 
   private static final String PROJECT_PRESENTATION_ID_PARAM_PLACEHOLDER =
-      ":" + PROJECT_PRESENTATION_ID_PARAM;
+      ":" + PROJECT_ID_PARAM;
 
   private static final String IS_ADMIN_RESPONSE_FIELD = "isAdmin";
 
@@ -116,10 +116,9 @@ public class ValidateIsAdminGatewayFilterFactory extends
 
   private String obtainProjectId(ServerWebExchange exchange, Object input,
       String projectIdBodyField) {
-
     return Optional.ofNullable(
             exchange.getAttribute(ServerWebExchangeUtils.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
-        .map(Map.class::cast).map(attributes -> attributes.get(PROJECT_PRESENTATION_ID_PARAM))
+        .map(Map.class::cast).map(attributes -> attributes.get(PROJECT_ID_PARAM))
         .map(String.class::cast)
         .orElseGet(() -> obtainProjectIdFromInputBody(input, projectIdBodyField));
   }
@@ -138,7 +137,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
 
   @Override
   public List<String> shortcutFieldOrder() {
-    return Arrays.asList("anonymousRequestAllowed", "nonAdminRequestAllowed", "projectIdBodyField");
+    return Arrays.asList("nonAdminRequestAllowed", "anonymousRequestAllowed", "projectIdBodyField");
   }
 
   /**

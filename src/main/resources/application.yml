@@ -29,6 +29,7 @@ configs:
       coreOutBasePath: ${A6_GATEWAY_PROJECTS_CORE_OUTBASEPATH:projects-core}
       presentationBaseURL: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
       presentationInBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INBASEPATH:projects/presentations}
+      presentationInProjectBasedPath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INPROJECTBASEDPATH:projects/(?<projectId>.*?)/presentations}
       presentationOutBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_OUTBASEPATH:projects-presentation}
     media:
       baseURL: ${A6_GATEWAY_MEDIA_URI:http://localhost:9084}
