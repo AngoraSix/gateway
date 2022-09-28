@@ -12,13 +12,13 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 @ConstructorBinding
 public class ExchangeAttributes {
 
-  private final String isProjectAdmin;
+  private final String projectAdmin;
 
-  public ExchangeAttributes(final String isProjectAdmin) {
-    this.isProjectAdmin = isProjectAdmin;
+  public ExchangeAttributes(final String projectAdmin) {
+    this.projectAdmin = projectAdmin;
   }
 
-  public String getIsProjectAdmin() {
-    return isProjectAdmin;
+  public String getProjectAdmin() {
+    return projectAdmin;
   }
 }

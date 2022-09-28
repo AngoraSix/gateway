@@ -38,30 +38,38 @@ public class ValidateIsAdminGatewayFilterFactory extends
 
   private static final String PROJECT_ID_PARAM = "projectId";
 
-  private static final String PROJECT_PRESENTATION_ID_PARAM_PLACEHOLDER =
-      ":" + PROJECT_ID_PARAM;
+  private static final String ID_PARAM_PLACEHOLDER = ":" + PROJECT_ID_PARAM;
 
   private static final String IS_ADMIN_RESPONSE_FIELD = "isAdmin";
 
-  private ObjectMapper objectMapper;
+  private final transient ObjectMapper objectMapper;
 
-  ParameterizedTypeReference<Map<String, Object>> jsonType =
-      new ParameterizedTypeReference<Map<String, Object>>() {
+  private final transient ParameterizedTypeReference<Map<String, Object>> jsonType =
+      new ParameterizedTypeReference<>() {
       };
 
-  private GatewayInternalRoutesConfigurations internalRoutesConfigs;
+  private final transient GatewayInternalRoutesConfigurations internalRoutesConfigs;
 
-  private InfrastructureConfigurations infrastructureConfigs;
+  private final transient InfrastructureConfigurations infrastructureConfigs;
 
-  private GatewayApiConfigurations apiConfigs;
+  private final transient GatewayApiConfigurations apiConfigs;
 
-  private ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;
+  private final transient ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;
 
-  public ValidateIsAdminGatewayFilterFactory(ObjectMapper objectMapper,
-      ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter,
-      GatewayApiConfigurations apiConfigs,
-      GatewayInternalRoutesConfigurations internalRoutesConfigs,
-      InfrastructureConfigurations infrastructureConfigs) {
+  /**
+   * Main constructor with required params.
+   *
+   * @param objectMapper            the ObjectMapper configured in the service
+   * @param modifyRequestBodyFilter delegating Modify Request Body Filter
+   * @param apiConfigs              API configs
+   * @param internalRoutesConfigs   internal Routes configs to route composing call
+   * @param infrastructureConfigs   other infrastructure configs
+   */
+  public ValidateIsAdminGatewayFilterFactory(final ObjectMapper objectMapper,
+      final ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter,
+      final GatewayApiConfigurations apiConfigs,
+      final GatewayInternalRoutesConfigurations internalRoutesConfigs,
+      final InfrastructureConfigurations infrastructureConfigs) {
     super(Config.class);
     this.objectMapper = objectMapper;
     this.apiConfigs = apiConfigs;
@@ -72,50 +80,49 @@ public class ValidateIsAdminGatewayFilterFactory extends
 
   @Override
   public GatewayFilter apply(final Config config) {
-    return modifyRequestBodyFilter.apply((c) ->
-        c.setRewriteFunction(Object.class, Object.class,
-            (filterExchange, input) -> ReactiveSecurityContextHolder.getContext().map(
-                SecurityContext::getAuthentication).map(
-                auth -> A6ContributorHeaderHelper.buildAndEncodeFromAuthentication(auth,
-                    objectMapper)).flatMap(encodedA6Contributor -> {
-              String projectId = obtainProjectId(filterExchange, input,
-                  config.getProjectIdBodyField());
-              String resolvedAdminEndpoint = internalRoutesConfigs.getProjectsCore()
-                  .getIsAdminEndpoint()
-                  .replace(PROJECT_PRESENTATION_ID_PARAM_PLACEHOLDER, projectId);
-              // Request to a path managed by the Gateway
-              WebClient client = WebClient.create();
-              return client.get()
-                  .uri(UriComponentsBuilder.fromUriString(apiConfigs.getProjects().getCoreBaseUrl())
-                      .pathSegment(apiConfigs.getProjects().getCoreOutBasePath(),
-                          resolvedAdminEndpoint)
-                      .build().toUri())
-                  .header(apiConfigs.getCommon().getContributorHeader(),
-                      encodedA6Contributor)
-                  .exchangeToMono(response -> response.bodyToMono(jsonType))
-                  .switchIfEmpty(Mono.just(Collections.emptyMap())).map(isAdminResponse ->
-                  {
-                    boolean isAdmin =
-                        isAdminResponse.containsKey(IS_ADMIN_RESPONSE_FIELD) && isAdminResponse.get(
-                                IS_ADMIN_RESPONSE_FIELD)
-                            .equals(true);
-                    if (!config.isNonAdminRequestAllowed() && !isAdmin) {
-                      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                          "Only Project admin can proceed");
-                    }
-                    filterExchange.getAttributes()
-                        .put(this.infrastructureConfigs.getExchangeAttributes().getIsProjectAdmin(),
-                            isAdmin);
-                    return Optional.ofNullable(input).orElse(Collections.emptyMap());
-                  });
-            }).switchIfEmpty(
-                config.isAnonymousRequestAllowed() ? Mono.justOrEmpty(input)
-                    : Mono.error(new IllegalArgumentException(
-                        "Validate Project Admin is not an optional step for this endpoint")))));
+    return modifyRequestBodyFilter.apply((c) -> c.setRewriteFunction(Object.class, Object.class,
+        (filterExchange, input) -> ReactiveSecurityContextHolder.getContext()
+            .map(SecurityContext::getAuthentication)
+            .map(auth -> A6ContributorHeaderHelper.buildAndEncodeFromAuthentication(auth,
+                objectMapper))
+            .flatMap(
+                encodedA6Contributor -> {
+                  final String projectId = obtainProjectId(filterExchange, input,
+                      config.getProjectIdBodyField());
+                  final String resolvedAdminEndpoint = internalRoutesConfigs.getProjectsCore()
+                      .getAdminEndpoint()
+                      .replace(ID_PARAM_PLACEHOLDER, projectId);
+                  // Request to a path managed by the Gateway
+                  final WebClient client = WebClient.create();
+                  return client.get().uri(
+                          UriComponentsBuilder.fromUriString(
+                                  apiConfigs.getProjects().getCoreBaseUrl())
+                              .pathSegment(apiConfigs.getProjects().getCoreOutBasePath(),
+                                  resolvedAdminEndpoint).build().toUri())
+                      .header(apiConfigs.getCommon().getContributorHeader(), encodedA6Contributor)
+                      .exchangeToMono(response -> response.bodyToMono(jsonType))
+                      .switchIfEmpty(Mono.just(Collections.emptyMap())).map(isAdminResponse -> {
+                        final boolean isAdmin =
+                            isAdminResponse.containsKey(IS_ADMIN_RESPONSE_FIELD)
+                                && isAdminResponse.get(
+                                IS_ADMIN_RESPONSE_FIELD).equals(true);
+                        if (!config.isNonAdminRequestAllowed() && !isAdmin) {
+                          throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                              "Only Project admin can proceed");
+                        }
+                        filterExchange.getAttributes()
+                            .put(this.infrastructureConfigs.getExchangeAttributes()
+                                    .getProjectAdmin(),
+                                isAdmin);
+                        return Optional.ofNullable(input).orElse(Collections.emptyMap());
+                      });
+                }).switchIfEmpty(config.isAnonymousRequestAllowed() ? Mono.justOrEmpty(input)
+                : Mono.error(new IllegalArgumentException(
+                    "Validate Project Admin is not an optional step for this endpoint")))));
   }
 
-  private String obtainProjectId(ServerWebExchange exchange, Object input,
-      String projectIdBodyField) {
+  private String obtainProjectId(final ServerWebExchange exchange, final Object input,
+      final String projectIdBodyField) {
     return Optional.ofNullable(
             exchange.getAttribute(ServerWebExchangeUtils.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
         .map(Map.class::cast).map(attributes -> attributes.get(PROJECT_ID_PARAM))
@@ -123,14 +130,14 @@ public class ValidateIsAdminGatewayFilterFactory extends
         .orElseGet(() -> obtainProjectIdFromInputBody(input, projectIdBodyField));
   }
 
-  private String obtainProjectIdFromInputBody(Object input, String projectIdBodyField) {
-    boolean isMap = Map.class.isAssignableFrom(input.getClass());
+  private String obtainProjectIdFromInputBody(final Object input, final String projectIdBodyField) {
+    final boolean isMap = Map.class.isAssignableFrom(input.getClass());
     if (!isMap) {
       throw new IllegalArgumentException(
           String.format("Trying to validate adminId from input of type [%s]",
               input.getClass().getName()));
     }
-    Map<String, Object> requestBody = (Map<String, Object>) input;
+    final Map<String, Object> requestBody = (Map<String, Object>) input;
     return (String) requestBody.get(projectIdBodyField);
   }
 
@@ -148,17 +155,14 @@ public class ValidateIsAdminGatewayFilterFactory extends
   public static class Config {
 
     private String projectIdBodyField = "";
-    private boolean nonAdminRequestAllowed = false;
-    private boolean anonymousRequestAllowed = false;
-
-    public Config() {
-    }
+    private boolean nonAdminRequestAllowed;
+    private boolean anonymousRequestAllowed;
 
     public String getProjectIdBodyField() {
       return projectIdBodyField;
     }
 
-    public void setProjectIdBodyField(String projectIdBodyField) {
+    public void setProjectIdBodyField(final String projectIdBodyField) {
       this.projectIdBodyField = projectIdBodyField;
     }
 
@@ -166,7 +170,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
       return nonAdminRequestAllowed;
     }
 
-    public void setNonAdminRequestAllowed(boolean nonAdminRequestAllowed) {
+    public void setNonAdminRequestAllowed(final boolean nonAdminRequestAllowed) {
       this.nonAdminRequestAllowed = nonAdminRequestAllowed;
     }
 
@@ -174,7 +178,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
       return anonymousRequestAllowed;
     }
 
-    public void setAnonymousRequestAllowed(boolean anonymousRequestAllowed) {
+    public void setAnonymousRequestAllowed(final boolean anonymousRequestAllowed) {
       this.anonymousRequestAllowed = anonymousRequestAllowed;
     }
   }

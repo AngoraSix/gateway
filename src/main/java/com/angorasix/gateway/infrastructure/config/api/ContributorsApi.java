@@ -19,7 +19,14 @@ public class ContributorsApi {
   private final String outBasePath;
   private static final String USERS_ENDPOINT = "/user";
 
-  public ContributorsApi(final String baseUrl, String inBasePath, String outBasePath) {
+  /**
+   * Simple config constructor.
+   *
+   * @param baseUrl the base URL user by the Contributors service
+   * @param inBasePath the path used for input requests
+   * @param outBasePath the path used for the downstream/output flow
+   */
+  public ContributorsApi(final String baseUrl, final String inBasePath, final String outBasePath) {
     this.baseUrl = baseUrl;
     this.inBasePath = inBasePath;
     this.outBasePath = outBasePath;

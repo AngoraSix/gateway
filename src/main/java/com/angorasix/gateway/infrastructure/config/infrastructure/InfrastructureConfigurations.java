@@ -1,6 +1,5 @@
 package com.angorasix.gateway.infrastructure.config.infrastructure;
 
-import com.angorasix.gateway.infrastructure.config.internalroutes.ProjectsCoreInternalRoutes;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
