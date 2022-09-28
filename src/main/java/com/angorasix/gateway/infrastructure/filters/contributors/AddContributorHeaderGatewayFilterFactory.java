@@ -22,15 +22,22 @@ import reactor.core.publisher.Mono;
 public class AddContributorHeaderGatewayFilterFactory extends
     AbstractGatewayFilterFactory<AddContributorHeaderGatewayFilterFactory.Config> {
 
-  private String contributorHeader;
+  private final transient String contributorHeader;
 
-  private ObjectMapper objectMapper;
+  private final transient ObjectMapper objectMapper;
 
-  private InfrastructureConfigurations infrastructureConfigs;
+  private final transient InfrastructureConfigurations infrastructureConfigs;
 
-  public AddContributorHeaderGatewayFilterFactory(ObjectMapper objectMapper,
-      GatewayApiConfigurations apiConfigurations,
-      InfrastructureConfigurations infrastructureConfigs) {
+  /**
+   * Constructor with required params.
+   *
+   * @param objectMapper          the ObjectMapper configured in the service
+   * @param apiConfigurations     API configurations to make requests to the Contributor service
+   * @param infrastructureConfigs other infrastructure configurations
+   */
+  public AddContributorHeaderGatewayFilterFactory(final ObjectMapper objectMapper,
+      final GatewayApiConfigurations apiConfigurations,
+      final InfrastructureConfigurations infrastructureConfigs) {
     super(Config.class);
     this.contributorHeader = apiConfigurations.getCommon().getContributorHeader();
     this.objectMapper = objectMapper;
@@ -39,27 +46,32 @@ public class AddContributorHeaderGatewayFilterFactory extends
 
   @Override
   public GatewayFilter apply(final Config config) {
-    return (exchange, chain) -> ReactiveSecurityContextHolder.getContext().map(
-            SecurityContext::getAuthentication).map(A6ContributorHeaderHelper::buildFromAuthentication)
+    return (exchange, chain) -> ReactiveSecurityContextHolder.getContext()
+        .map(SecurityContext::getAuthentication)
+        .map(A6ContributorHeaderHelper::buildFromAuthentication)
         .map(a6Contributor -> {
           if (exchange.getAttributes()
               .containsKey(
-                  this.infrastructureConfigs.getExchangeAttributes().getIsProjectAdmin())) {
+                  this.infrastructureConfigs.getExchangeAttributes().getProjectAdmin())) {
             a6Contributor.setProjectAdmin(exchange.getAttribute(
-                this.infrastructureConfigs.getExchangeAttributes().getIsProjectAdmin()));
+                this.infrastructureConfigs.getExchangeAttributes().getProjectAdmin()));
           }
-          String encodedContributor = A6ContributorHeaderHelper.encodeContributorHeader(
+          final String encodedContributor = A6ContributorHeaderHelper.encodeContributorHeader(
               a6Contributor, objectMapper);
-          return exchange.mutate().request(req -> req.header(contributorHeader, encodedContributor))
+          return exchange.mutate()
+              .request(req -> req.header(contributorHeader, encodedContributor))
               .build();
         }).switchIfEmpty(Mono.just(exchange))
         .flatMap(chain::filter);
 
   }
 
+  /**
+   * <p>
+   * Config class to use for AbstractGatewayFilterFactory.
+   * </p>
+   */
   public static class Config {
 
-    public Config() {
-    }
   }
 }

@@ -66,9 +66,9 @@
   <name>gateway</name>
 
   <parent>
-    <artifactId>parent-pom</artifactId>
+    <artifactId>parent-pom-spring-java</artifactId>
     <groupId>com.angorasix</groupId>
-    <relativePath>../parent-pom</relativePath>
+    <relativePath>../parent-poms/parent-pom-spring-java</relativePath>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 

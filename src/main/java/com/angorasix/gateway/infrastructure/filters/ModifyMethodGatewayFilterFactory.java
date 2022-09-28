@@ -43,14 +43,11 @@ public class ModifyMethodGatewayFilterFactory extends
 
     private HttpMethod method;
 
-    public Config() {
-    }
-
     public HttpMethod getMethod() {
       return method;
     }
 
-    public void setMethod(HttpMethod method) {
+    public final void setMethod(final HttpMethod method) {
       this.method = method;
     }
   }

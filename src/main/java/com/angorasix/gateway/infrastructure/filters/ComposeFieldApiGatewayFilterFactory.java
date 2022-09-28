@@ -30,20 +30,21 @@ import reactor.core.publisher.Mono;
 public class ComposeFieldApiGatewayFilterFactory extends
     AbstractGatewayFilterFactory<ComposeFieldApiGatewayFilterFactory.Config> {
 
-  public ComposeFieldApiGatewayFilterFactory(
-      ModifyResponseBodyGatewayFilterFactory modifyResponseBodyFilter) {
-    super(Config.class);
-    this.modifyResponseBodyFilter = modifyResponseBodyFilter;
-  }
+  @Value("${server.port:9080}")
+  /* default */
+  private transient int serverPort;
 
-  ModifyResponseBodyGatewayFilterFactory modifyResponseBodyFilter;
+  private final transient ModifyResponseBodyGatewayFilterFactory modifyResponseBodyFilter;
 
-  ParameterizedTypeReference<List<Map<String, Object>>> jsonType =
+  private final transient ParameterizedTypeReference<List<Map<String, Object>>> jsonType =
       new ParameterizedTypeReference<List<Map<String, Object>>>() {
       };
 
-  @Value("${server.port:9080}")
-  int serverPort;
+  public ComposeFieldApiGatewayFilterFactory(
+      final ModifyResponseBodyGatewayFilterFactory modifyResponseBodyFilter) {
+    super(Config.class);
+    this.modifyResponseBodyFilter = modifyResponseBodyFilter;
+  }
 
   @Override
   public GatewayFilter apply(final Config config) {
@@ -52,62 +53,69 @@ public class ComposeFieldApiGatewayFilterFactory extends
           if (!filterExchange.getResponse().getStatusCode().is2xxSuccessful() || input == null) {
             return Mono.justOrEmpty(input);
           }
-          boolean isCollection = Collection.class.isAssignableFrom(input.getClass());
-          boolean isMap = Map.class.isAssignableFrom(input.getClass());
+          final boolean isCollection = Collection.class.isAssignableFrom(input.getClass());
+          final boolean isMap = Map.class.isAssignableFrom(input.getClass());
           if (!isCollection && !isMap) {
             throw new IllegalArgumentException(
                 String.format("Trying to compose input of type [%s]", input.getClass().getName()));
           }
-          Collection<Map<String, Object>> castedInput =
+          final Collection<Map<String, Object>> castedInput =
               isMap ? Collections.singletonList((Map<String, Object>) input)
                   : (List<Map<String, Object>>) input;
 
           //  extract base field values (usually ids) and join them in a "," separated string
-          String baseFieldValues = castedInput.stream()
+          final String baseFieldValues = castedInput.stream()
               .map(bodyMap -> (String) bodyMap.get(config.getOriginBaseField()))
               .collect(Collectors.joining(","));
 
-          List<String> authHeader = filterExchange.getRequest().getHeaders()
+          final List<String> authHeader = filterExchange.getRequest().getHeaders()
               .get(HttpHeaders.AUTHORIZATION);
 
           // Request to a path managed by the Gateway
-          WebClient client = WebClient.create();
+          final WebClient client = WebClient.create();
           return client.get()
               .uri(UriComponentsBuilder.fromUriString("http://localhost").port(serverPort)
                   .path(config.getTargetGatewayPath())
                   .queryParam(config.getTargetComposeQueryParam(), baseFieldValues)
                   .queryParams(CollectionUtils.toMultiValueMap(
-                      config.getTargetAdditionalQueryParams()))
+                      config.getTargetQueryParams()))
                   .build().toUri())
               .header(HttpHeaders.AUTHORIZATION,
-                  !CollectionUtils.isEmpty(authHeader) ? authHeader.get(0) : null)
+                  CollectionUtils.isEmpty(authHeader) ? "" : authHeader.get(0))
               .exchangeToMono(response -> response.bodyToMono(jsonType)
-                  .map(targetEntries -> {
-                    // create a Map using the base field values as keys fo easy access
-                    Map<String, Object> targetEntriesMap = targetEntries.stream().collect(
-                        Collectors.toMap(
-                            pr -> (String) pr.get(config.getTargetResponseMappingField()),
-                            pr -> config.isListComposeField() ? Collections.singletonList(pr) : pr,
-                            (pr1, pr2) -> config.isListComposeField() ? Stream.of(pr1, pr2)
-                                .flatMap(s -> ((List) s).stream())
-                                .collect(Collectors.toList()) : pr1));
-                    // compose the origin body using the requested target entries
-                    List mappedEntries = castedInput.stream().map(originEntries -> {
-                      originEntries.put(config.getComposeField(),
-                          targetEntriesMap.get(originEntries.get(config.getOriginBaseField())));
-                      return originEntries;
-                    }).collect(Collectors.toList());
-                    return isMap ? mappedEntries.get(0) : mappedEntries;
-                  })
+                  .map(targetEntries -> processComposeRequest(targetEntries, config, castedInput,
+                      isMap))
               );
         })
     );
   }
 
+  private Object processComposeRequest(
+      final List<Map<String, Object>> targetEntries,
+      final Config config,
+      final Collection<Map<String, Object>> castedInput,
+      final boolean isMap) {
+    // create a Map using the base field values as keys fo easy access
+    final Map<String, Object> targetEntriesMap = targetEntries.stream().collect(
+        Collectors.toMap(
+            pr -> (String) pr.get(config.getTargetResponseMapField()),
+            pr -> config.isListComposeField() ? Collections.singletonList(pr) : pr,
+            (pr1, pr2) -> config.isListComposeField() ? Stream.of(pr1, pr2)
+                .flatMap(s -> ((List) s).stream())
+                .collect(Collectors.toList()) : pr1));
+    // compose the origin body using the requested target entries
+    final List mappedEntries = castedInput.stream().map(originEntries -> {
+      originEntries.put(config.getComposeField(),
+          targetEntriesMap.get(originEntries.get(config.getOriginBaseField())));
+      return originEntries;
+    }).collect(Collectors.toList());
+    return isMap ? mappedEntries.get(0) : mappedEntries;
+  }
+
   @Override
   public List<String> shortcutFieldOrder() {
     return Arrays.asList("originBaseField", "targetGatewayPath", "targetComposeQueryParam",
-        "targetAdditionalQueryParams", "targetResponseMappingField", "composeField",
+        "targetQueryParams", "targetResponseMapField", "composeField",
         "composeFieldType");
   }
 
@@ -118,22 +126,19 @@ public class ComposeFieldApiGatewayFilterFactory extends
    */
   public static class Config {
 
-    private String originBaseField;
-    private String targetGatewayPath;
-    private String targetComposeQueryParam;
-    private Map<String, List<String>> targetAdditionalQueryParams;
-    private String targetResponseMappingField;
-    private String composeField;
-    private boolean isListComposeField; // composeFieldType : "list", or otherwise JSON object
-
-    public Config() {
-    }
+    private transient String originBaseField;
+    private transient String targetGatewayPath;
+    private transient String targetComposeQueryParam;
+    private transient Map<String, List<String>> targetQueryParams;
+    private transient String targetResponseMapField;
+    private transient String composeField;
+    private transient boolean listComposeField;
 
     public String getOriginBaseField() {
       return originBaseField;
     }
 
-    public void setOriginBaseField(String originBaseField) {
+    public void setOriginBaseField(final String originBaseField) {
       this.originBaseField = originBaseField;
     }
 
@@ -141,7 +146,7 @@ public class ComposeFieldApiGatewayFilterFactory extends
       return targetGatewayPath;
     }
 
-    public void setTargetGatewayPath(String targetGatewayPath) {
+    public void setTargetGatewayPath(final String targetGatewayPath) {
       this.targetGatewayPath = targetGatewayPath;
     }
 
@@ -149,7 +154,7 @@ public class ComposeFieldApiGatewayFilterFactory extends
       return targetComposeQueryParam;
     }
 
-    public void setTargetComposeQueryParam(String targetComposeQueryParam) {
+    public void setTargetComposeQueryParam(final String targetComposeQueryParam) {
       this.targetComposeQueryParam = targetComposeQueryParam;
     }
 
@@ -157,40 +162,40 @@ public class ComposeFieldApiGatewayFilterFactory extends
       return composeField;
     }
 
-    public void setComposeField(String composeField) {
+    public void setComposeField(final String composeField) {
       this.composeField = composeField;
     }
 
-    public Map<String, List<String>> getTargetAdditionalQueryParams() {
-      return targetAdditionalQueryParams;
+    public Map<String, List<String>> getTargetQueryParams() {
+      return targetQueryParams;
     }
 
     /**
-     * Setter to translate the String input to query params as Map
+     * Setter to translate the String input to query params as Map.
      *
-     * @param targetAdditionalQueryParams
+     * @param targetQueryParams input query params.
      */
-    public void setTargetAdditionalQueryParams(String targetAdditionalQueryParams) {
-      this.targetAdditionalQueryParams = Arrays.stream(targetAdditionalQueryParams.split("&"))
+    public void setTargetQueryParams(final String targetQueryParams) {
+      this.targetQueryParams = Arrays.stream(targetQueryParams.split("&"))
           .map(param -> param.split("="))
           .collect(Collectors.toMap(p -> p[0],
               p -> Collections.singletonList(p.length > 1 ? p[1] : "")));
     }
 
-    public String getTargetResponseMappingField() {
-      return targetResponseMappingField;
+    public String getTargetResponseMapField() {
+      return targetResponseMapField;
     }
 
-    public void setTargetResponseMappingField(String targetResponseMappingField) {
-      this.targetResponseMappingField = targetResponseMappingField;
+    public void setTargetResponseMapField(final String targetResponseMapField) {
+      this.targetResponseMapField = targetResponseMapField;
     }
 
     public boolean isListComposeField() {
-      return isListComposeField;
+      return listComposeField;
     }
 
-    public void setComposeFieldType(String composeFieldType) {
-      this.isListComposeField = composeFieldType != null && "list".equals(composeFieldType);
+    public void setComposeFieldType(final String composeFieldType) {
+      this.listComposeField = composeFieldType != null && "list".equals(composeFieldType);
     }
   }
 

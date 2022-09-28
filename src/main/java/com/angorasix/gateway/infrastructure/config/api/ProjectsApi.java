@@ -19,9 +19,19 @@ public class ProjectsApi {
   private final String presentationInBasePath;
   private final String presentationOutBasePath;
 
-  public ProjectsApi(final String coreBaseUrl, String coreInBasePath,
-      String coreOutBasePath, final String presentationBaseUrl,
-      String presentationInBasePath, String presentationOutBasePath) {
+  /**
+   * Simple config constructor.
+   *
+   * @param coreBaseUrl             the base URL user by the Project Core service
+   * @param presentationBaseUrl     the base URL user by the Project Presentations service
+   * @param coreInBasePath          the path used for input requests for the Projects Core service
+   * @param presentationInBasePath  the path used for input requests Presentations service
+   * @param coreOutBasePath         the path used for the downstream flow Core service
+   * @param presentationOutBasePath the path used for the downstream flow Presentations service
+   */
+  public ProjectsApi(final String coreBaseUrl, final String coreInBasePath,
+      final String coreOutBasePath, final String presentationBaseUrl,
+      final String presentationInBasePath, final String presentationOutBasePath) {
     this.coreBaseUrl = coreBaseUrl;
     this.coreInBasePath = coreInBasePath;
     this.coreOutBasePath = coreOutBasePath;

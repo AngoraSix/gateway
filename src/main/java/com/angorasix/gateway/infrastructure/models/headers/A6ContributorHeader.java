@@ -4,6 +4,7 @@ import java.util.Map;
 
 /**
  * <p>
+ * Header that will be sent downstream with Contributor information.
  * </p>
  *
  * @author rozagerardo
@@ -12,10 +13,10 @@ public class A6ContributorHeader {
 
   private final String contributorId;
   private final Map<String, String> attributes;
-  private boolean isProjectAdmin = false;
+  private boolean projectAdmin;
 
-  public A6ContributorHeader(String contributorId,
-      Map<String, String> attributes) {
+  public A6ContributorHeader(final String contributorId,
+      final Map<String, String> attributes) {
     this.contributorId = contributorId;
     this.attributes = attributes;
   }
@@ -29,10 +30,10 @@ public class A6ContributorHeader {
   }
 
   public boolean isProjectAdmin() {
-    return isProjectAdmin;
+    return projectAdmin;
   }
 
-  public void setProjectAdmin(boolean projectAdmin) {
-    isProjectAdmin = projectAdmin;
+  public void setProjectAdmin(final boolean projectAdmin) {
+    this.projectAdmin = projectAdmin;
   }
 }

@@ -16,7 +16,14 @@ public class MediaApi {
   private final String inBasePath;
   private final String outBasePath;
 
-  public MediaApi(final String baseUrl, String inBasePath, String outBasePath) {
+  /**
+   * Simple config constructor.
+   *
+   * @param baseUrl     the base URL user by the Media service
+   * @param inBasePath  the path used for input requests
+   * @param outBasePath the path used for the downstream/output flow
+   */
+  public MediaApi(final String baseUrl, final String inBasePath, final String outBasePath) {
     this.baseUrl = baseUrl;
     this.inBasePath = inBasePath;
     this.outBasePath = outBasePath;

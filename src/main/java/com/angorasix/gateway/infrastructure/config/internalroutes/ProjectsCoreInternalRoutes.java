@@ -12,13 +12,13 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 @ConstructorBinding
 public class ProjectsCoreInternalRoutes {
 
-  private final String isAdminEndpoint;
+  private final String adminEndpoint;
 
   public ProjectsCoreInternalRoutes(final String isAdminEndpoint) {
-    this.isAdminEndpoint = isAdminEndpoint;
+    this.adminEndpoint = isAdminEndpoint;
   }
 
-  public String getIsAdminEndpoint() {
-    return isAdminEndpoint;
+  public String getAdminEndpoint() {
+    return adminEndpoint;
   }
 }
