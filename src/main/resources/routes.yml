@@ -36,6 +36,7 @@ spring:
             - Path=/projects/core/**
             - Method=GET
           filters:
+            - AddContributorHeader
             - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
             - ComposeFieldApi=id,/projects/presentations,projectIds,shallow,projectId,presentations,list
         - id: projects_route--update
