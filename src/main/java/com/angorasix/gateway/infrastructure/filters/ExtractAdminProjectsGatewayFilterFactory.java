@@ -6,9 +6,9 @@ import com.angorasix.gateway.infrastructure.config.internalroutes.GatewayInterna
 import com.angorasix.gateway.infrastructure.models.headers.A6ContributorHeaderHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,11 +17,11 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
 
 /**
  * <p>
- * Filter to request Administered Projects and add them as a exchange attribute for next filters.
+ * Filter to request Administered Projects for requested Contributor (or current Contributor
+ * otherwise) and add them as a exchange attribute for next filters.
  * </p>
  *
  * @author rozagerardo
@@ -71,6 +71,9 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
           final WebClient client = WebClient.create();
           final String encodedContributor = A6ContributorHeaderHelper.encodeContributorHeader(
               a6Contributor, objectMapper);
+          final String adminId = Optional.ofNullable(
+                  filterExchange.getRequest().getQueryParams().getFirst(config.getAdminIdQueryParamKey()))
+              .orElse(a6Contributor.getContributorId());
           return client.get().uri(
                   UriComponentsBuilder.fromUriString(
                           apiConfigs.getProjects().getCoreBaseUrl())
@@ -78,11 +81,11 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
                           projectsEndpoint)
                       .queryParam(
                           internalRoutesConfigs.getProjectsCoreParams().getAdminIdQueryParam(),
-                          a6Contributor.getContributorId())
+                          adminId)
                       .build().toUri())
               .header(apiConfigs.getCommon().getContributorHeader(), encodedContributor)
               .exchangeToFlux(response -> response.bodyToFlux(jsonType))
-              .switchIfEmpty(Mono.just(Collections.emptyMap())).map(e -> (String) e.get(
+              .map(e -> (String) e.get(
                   internalRoutesConfigs.getProjectsCoreParams()
                       .getProjectIdResponseField())).collectList()
               .map(projectIds -> {
@@ -91,7 +94,7 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
                         projectIds);
                 filterExchange.getAttributes()
                     .put(configConstants.getIsProjectAdminAttribute(),
-                        true);
+                        adminId.equals(a6Contributor.getContributorId()));
                 return filterExchange;
               });
         }).flatMap(chain::filter);
@@ -99,7 +102,7 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
 
   @Override
   public List<String> shortcutFieldOrder() {
-    return Arrays.asList("attributeField");
+    return Arrays.asList();
   }
 
   /**
@@ -109,5 +112,14 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
    */
   public static class Config {
 
+    private transient String adminIdQueryParamKey = "adminId";
+
+    public String getAdminIdQueryParamKey() {
+      return adminIdQueryParamKey;
+    }
+
+    public void setAdminIdQueryParamKey(String contributorIdQueryParamKey) {
+      this.adminIdQueryParamKey = contributorIdQueryParamKey;
+    }
   }
 }
