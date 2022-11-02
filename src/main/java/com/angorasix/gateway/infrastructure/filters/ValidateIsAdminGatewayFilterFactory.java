@@ -1,7 +1,7 @@
 package com.angorasix.gateway.infrastructure.filters;
 
 import com.angorasix.gateway.infrastructure.config.api.GatewayApiConfigurations;
-import com.angorasix.gateway.infrastructure.config.infrastructure.InfrastructureConfigurations;
+import com.angorasix.gateway.infrastructure.config.constants.ConfigConstants;
 import com.angorasix.gateway.infrastructure.config.internalroutes.GatewayInternalRoutesConfigurations;
 import com.angorasix.gateway.infrastructure.models.headers.A6ContributorHeaderHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,12 +36,6 @@ import reactor.core.publisher.Mono;
 public class ValidateIsAdminGatewayFilterFactory extends
     AbstractGatewayFilterFactory<ValidateIsAdminGatewayFilterFactory.Config> {
 
-  private static final String PROJECT_ID_PARAM = "projectId";
-
-  private static final String ID_PARAM_PLACEHOLDER = ":" + PROJECT_ID_PARAM;
-
-  private static final String IS_ADMIN_RESPONSE_FIELD = "isAdmin";
-
   private final transient ObjectMapper objectMapper;
 
   private final transient ParameterizedTypeReference<Map<String, Object>> jsonType =
@@ -50,9 +44,9 @@ public class ValidateIsAdminGatewayFilterFactory extends
 
   private final transient GatewayInternalRoutesConfigurations internalRoutesConfigs;
 
-  private final transient InfrastructureConfigurations infrastructureConfigs;
-
   private final transient GatewayApiConfigurations apiConfigs;
+
+  private final transient ConfigConstants configConstants;
 
   private final transient ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;
 
@@ -63,19 +57,18 @@ public class ValidateIsAdminGatewayFilterFactory extends
    * @param modifyRequestBodyFilter delegating Modify Request Body Filter
    * @param apiConfigs              API configs
    * @param internalRoutesConfigs   internal Routes configs to route composing call
-   * @param infrastructureConfigs   other infrastructure configs
    */
   public ValidateIsAdminGatewayFilterFactory(final ObjectMapper objectMapper,
       final ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter,
       final GatewayApiConfigurations apiConfigs,
-      final GatewayInternalRoutesConfigurations internalRoutesConfigs,
-      final InfrastructureConfigurations infrastructureConfigs) {
+      final ConfigConstants configConstants,
+      final GatewayInternalRoutesConfigurations internalRoutesConfigs) {
     super(Config.class);
     this.objectMapper = objectMapper;
     this.apiConfigs = apiConfigs;
+    this.configConstants = configConstants;
     this.internalRoutesConfigs = internalRoutesConfigs;
     this.modifyRequestBodyFilter = modifyRequestBodyFilter;
-    this.infrastructureConfigs = infrastructureConfigs;
   }
 
   @Override
@@ -91,7 +84,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
                       config.getProjectIdBodyField());
                   final String resolvedAdminEndpoint = internalRoutesConfigs.getProjectsCore()
                       .getAdminEndpoint()
-                      .replace(ID_PARAM_PLACEHOLDER, projectId);
+                      .replace(configConstants.getProjectIdPlaceholder(), projectId);
                   // Request to a path managed by the Gateway
                   final WebClient client = WebClient.create();
                   return client.get().uri(
@@ -103,16 +96,18 @@ public class ValidateIsAdminGatewayFilterFactory extends
                       .exchangeToMono(response -> response.bodyToMono(jsonType))
                       .switchIfEmpty(Mono.just(Collections.emptyMap())).map(isAdminResponse -> {
                         final boolean isAdmin =
-                            isAdminResponse.containsKey(IS_ADMIN_RESPONSE_FIELD)
+                            isAdminResponse.containsKey(
+                                internalRoutesConfigs.getProjectsCoreParams()
+                                    .getIsAdminResponseField())
                                 && isAdminResponse.get(
-                                IS_ADMIN_RESPONSE_FIELD).equals(true);
+                                internalRoutesConfigs.getProjectsCoreParams()
+                                    .getIsAdminResponseField()).equals(true);
                         if (!config.isNonAdminRequestAllowed() && !isAdmin) {
                           throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                               "Only Project admin can proceed");
                         }
                         filterExchange.getAttributes()
-                            .put(this.infrastructureConfigs.getExchangeAttributes()
-                                    .getProjectAdmin(),
+                            .put(configConstants.getIsProjectAdminAttribute(),
                                 isAdmin);
                         return Optional.ofNullable(input).orElse(Collections.emptyMap());
                       });
@@ -125,7 +120,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
       final String projectIdBodyField) {
     return Optional.ofNullable(
             exchange.getAttribute(ServerWebExchangeUtils.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
-        .map(Map.class::cast).map(attributes -> attributes.get(PROJECT_ID_PARAM))
+        .map(Map.class::cast).map(attributes -> attributes.get(configConstants.getProjectIdParam()))
         .map(String.class::cast)
         .orElseGet(() -> obtainProjectIdFromInputBody(input, projectIdBodyField));
   }

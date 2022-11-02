@@ -37,7 +37,7 @@ public class ComposeFieldApiGatewayFilterFactory extends
   private final transient ModifyResponseBodyGatewayFilterFactory modifyResponseBodyFilter;
 
   private final transient ParameterizedTypeReference<List<Map<String, Object>>> jsonType =
-      new ParameterizedTypeReference<List<Map<String, Object>>>() {
+      new ParameterizedTypeReference<>() {
       };
 
   public ComposeFieldApiGatewayFilterFactory(

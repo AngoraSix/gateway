@@ -1,7 +1,7 @@
 package com.angorasix.gateway.infrastructure.filters.contributors;
 
 import com.angorasix.gateway.infrastructure.config.api.GatewayApiConfigurations;
-import com.angorasix.gateway.infrastructure.config.infrastructure.InfrastructureConfigurations;
+import com.angorasix.gateway.infrastructure.config.constants.ConfigConstants;
 import com.angorasix.gateway.infrastructure.models.headers.A6ContributorHeaderHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -26,22 +26,20 @@ public class AddContributorHeaderGatewayFilterFactory extends
 
   private final transient ObjectMapper objectMapper;
 
-  private final transient InfrastructureConfigurations infrastructureConfigs;
+  private final transient ConfigConstants configConstants;
 
   /**
    * Constructor with required params.
    *
-   * @param objectMapper          the ObjectMapper configured in the service
-   * @param apiConfigurations     API configurations to make requests to the Contributor service
-   * @param infrastructureConfigs other infrastructure configurations
+   * @param objectMapper      the ObjectMapper configured in the service
+   * @param apiConfigurations API configurations to make requests to the Contributor service
    */
   public AddContributorHeaderGatewayFilterFactory(final ObjectMapper objectMapper,
-      final GatewayApiConfigurations apiConfigurations,
-      final InfrastructureConfigurations infrastructureConfigs) {
+      final GatewayApiConfigurations apiConfigurations, final ConfigConstants configConstants) {
     super(Config.class);
     this.contributorHeader = apiConfigurations.getCommon().getContributorHeader();
     this.objectMapper = objectMapper;
-    this.infrastructureConfigs = infrastructureConfigs;
+    this.configConstants = configConstants;
   }
 
   @Override
@@ -52,9 +50,9 @@ public class AddContributorHeaderGatewayFilterFactory extends
         .map(a6Contributor -> {
           if (exchange.getAttributes()
               .containsKey(
-                  this.infrastructureConfigs.getExchangeAttributes().getProjectAdmin())) {
+                  configConstants.getIsProjectAdminAttribute())) {
             a6Contributor.setProjectAdmin(exchange.getAttribute(
-                this.infrastructureConfigs.getExchangeAttributes().getProjectAdmin()));
+                configConstants.getIsProjectAdminAttribute()));
           }
           final String encodedContributor = A6ContributorHeaderHelper.encodeContributorHeader(
               a6Contributor, objectMapper);

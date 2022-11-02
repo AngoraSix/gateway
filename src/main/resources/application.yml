@@ -39,12 +39,21 @@ configs:
       baseURL: ${A6_GATEWAY_CLUBS_URI:http://localhost:9085}
       inBasePath: ${A6_GATEWAY_CLUBS_INBASEPATH:clubs}
       outBasePath: ${A6_GATEWAY_CLUBS_OUTBASEPATH:clubs}
-  internal-routes:
-    projectscore:
+  internalRoutes:
+    projectsCore:
       isAdminEndpoint: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCORE_ISADMIN::projectId/isAdmin}
-  infrastructure:
-    exchangeAttributes:
-      isProjectAdmin: ${A6_GATEWAY_INFRASTRUCTURE_EXCHANGEATTRIBUTES_ISPROJECTADMIN:org.a6.gateway.infrastructure.exchangeAttributes.isProjectAdmin}
+      projectsEndpoint: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCORE_PROJECTS:}
+    projectsCoreParams:
+      adminIdQueryParam: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCOREPARAMS_ADMINIDQUERYPARAM:adminId}
+      isAdminResponseField: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCOREPARAMS_ISADMINRESPONSEFIELD:isAdmin}
+      projectIdResponseField: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCOREPARAMS_PROJECTIDRESPONSEFIELD:id}
+      projectIdQueryParam: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCOREPARAMS_PROJECTIDQUERYPARAM:projectId}
+  constants:
+    projectIdParam: projectId
+    projectIdPlaceholder: :projectId
+    adminProjectIdsParam: adminProjectIds
+    isProjectAdminAttribute: org.a6.gateway.infrastructure.config.constants.isProjectAdmin
+    projectIdsAttribute: org.a6.gateway.infrastructure.config.constants.projectIds
 
 spring:
   config:

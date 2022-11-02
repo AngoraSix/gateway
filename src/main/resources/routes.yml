@@ -36,6 +36,7 @@ spring:
             - Path=/projects/core/**
             - Method=GET
           filters:
+            - AddContributorHeader
             - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
             - ComposeFieldApi=id,/projects/presentations,projectIds,shallow,projectId,presentations,list
         - id: projects_route--update
@@ -120,10 +121,20 @@ spring:
         - id: clubs_route--get-wellknown-club
           uri: ${configs.api.clubs.baseURL}
           predicates:
-            - Path=/clubs/well-known/{projectId}/**
+            - Path=/clubs/well-known/{projectId}/{clubType}
             - Method=GET
           filters:
             - ValidateIsAdmin=true,true
+            - AddContributorHeader
+            - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
+        - id: clubs_route--get-administered-wellknown-club
+          uri: ${configs.api.clubs.baseURL}
+          predicates:
+            - Path=/clubs/well-known
+            - Method=GET
+          filters:
+            - ExtractAdminProjects
+            - AddQueryParamFromAttribute=${configs.constants.projectIdsAttribute},${configs.internalRoutes.projectsCoreParams.projectIdQueryParam}
             - AddContributorHeader
             - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
         - id: clubs_route--patch-wellknown-club
@@ -133,15 +144,6 @@ spring:
             - Method=PATCH
           filters:
             - ValidateIsAdmin=true
-            - AddContributorHeader
-            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
-        - id: clubs_route--post-add-member
-          uri: ${configs.api.clubs.baseURL}
-          predicates:
-            - Path=/clubs/well-known/{projectId}/{type}/add-member
-            - Method=POST
-          filters:
-            - ValidateIsAdmin=false,true
             - AddContributorHeader
             - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
         # MEDIA

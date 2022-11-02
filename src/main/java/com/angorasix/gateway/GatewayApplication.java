@@ -1,7 +1,7 @@
 package com.angorasix.gateway;
 
 import com.angorasix.gateway.infrastructure.config.api.GatewayApiConfigurations;
-import com.angorasix.gateway.infrastructure.config.infrastructure.InfrastructureConfigurations;
+import com.angorasix.gateway.infrastructure.config.constants.ConfigConstants;
 import com.angorasix.gateway.infrastructure.config.internalroutes.GatewayInternalRoutesConfigurations;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,7 +16,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  */
 @SpringBootApplication
 @EnableConfigurationProperties({GatewayApiConfigurations.class,
-    GatewayInternalRoutesConfigurations.class, InfrastructureConfigurations.class})
+    GatewayInternalRoutesConfigurations.class, ConfigConstants.class})
 public class GatewayApplication {
 
   public static void main(final String[] args) {
