@@ -21,14 +21,6 @@ spring:
           filters:
             - RewritePath=/${configs.api.contributors.inBasePath}/(?<segment>.*), /${configs.api.contributors.outBasePath}/$\{segment}
             - ContributorsAdminRequest
-        - id: contributors_get_contributors
-          uri: http://localhost:9081
-          predicates:
-            - Path=/contributors
-            - Method=GET
-          filters:
-            - RewritePath=/${configs.api.contributors.inBasePath}/(?<segment>.*), /${configs.api.contributors.outBasePath}/$\{segment}
-            - ContributorsAdminRequest
         # PROJECTS CORE
         - id: projectscore_route--get--shallow
           uri: ${configs.api.projects.coreBaseURL}
