@@ -33,6 +33,12 @@ configs:
         inBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INBASEPATH:projects/presentations}
         inProjectBasedPath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INPROJECTBASEDPATH:projects/(?<projectId>.*?)/presentations}
         outBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_OUTBASEPATH:projects-presentation}
+      management:
+        baseURL: ${A6_GATEWAY_PROJECTS_MANAGEMENT_URI:http://localhost:9086}
+        inBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INBASEPATH:projects/management}
+        inProjectBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INPROJECTBASEDPATH:projects/(?<projectId>.*?)/management}
+        outProjectBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_OUTPROJECTBASEDPATH:management-core/project/$\{projectId}}
+        outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_OUTBASEPATH:management-core}
     media:
       baseURL: ${A6_GATEWAY_MEDIA_URI:http://localhost:9084}
       inBasePath: ${A6_GATEWAY_MEDIA_INBASEPATH:media}

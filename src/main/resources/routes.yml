@@ -118,6 +118,43 @@ spring:
             - Path=/projects/presentations/**
           filters:
             - RewritePath=/${configs.api.projects.presentation.inBasePath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
+        # PROJECTS MANAGEMENT
+        - id: projectsmanagementcore_route--get--shallow
+          uri: ${configs.api.projects.management.baseURL}
+          predicates:
+            - Path=/projects/management/**
+            - Method=GET
+            - Query=shallow
+          filters:
+            - RewritePath=/${configs.api.projects.management.inBasePath}(?<segment>.*), /${configs.api.projects.management.outBasePath}$\{segment}
+        - id: projectsmanagementcore_route--get
+          uri: ${configs.api.projects.management.baseURL}
+          predicates:
+            - Path=/projects/management/**
+            - Method=GET
+          filters:
+            - RewritePath=/${configs.api.projects.management.inBasePath}(?<segment>.*), /${configs.api.projects.management.outBasePath}$\{segment}
+            - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
+        - id: projectsmanagementcore_route--get-single-by-projectid
+          uri: ${configs.api.projects.management.baseURL}
+          predicates:
+            - Path=/projects/{projectId}/management
+            - Method=GET
+          filters:
+            - ValidateIsAdmin=true,true
+            - AddContributorHeader
+            - RewritePath=/${configs.api.projects.management.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.management.outProjectBasedPath}$\{segment}
+            - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
+        - id: projectsmanagementcore_route--get-single
+          uri: ${configs.api.projects.management.baseURL}
+          predicates:
+            - Path=/projects/{projectId}/management/**
+            - Method=GET
+          filters:
+            - ValidateIsAdmin=true,true
+            - AddContributorHeader
+            - RewritePath=/${configs.api.projects.management.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.management.outBasePath}$\{segment}
+            - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         # CLUBS
         - id: clubs_route--get-wellknown-club
           uri: ${configs.api.clubs.baseURL}
