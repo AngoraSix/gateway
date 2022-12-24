@@ -135,6 +135,16 @@ spring:
           filters:
             - RewritePath=/${configs.api.projects.management.inBasePath}(?<segment>.*), /${configs.api.projects.management.outBasePath}$\{segment}
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
+        - id: projectsmanagementcore_route--get-single-by-projectid
+          uri: ${configs.api.projects.management.baseURL}
+          predicates:
+            - Path=/projects/{projectId}/management
+            - Method=GET
+          filters:
+            - ValidateIsAdmin=true,true
+            - AddContributorHeader
+            - RewritePath=/${configs.api.projects.management.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.management.outProjectBasedPath}$\{segment}
+            - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         - id: projectsmanagementcore_route--get-single
           uri: ${configs.api.projects.management.baseURL}
           predicates:
