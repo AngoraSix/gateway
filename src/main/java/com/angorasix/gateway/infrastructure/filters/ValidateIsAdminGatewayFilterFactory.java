@@ -82,32 +82,32 @@ public class ValidateIsAdminGatewayFilterFactory extends
                 encodedA6Contributor -> {
                   final String projectId = obtainProjectId(filterExchange, input,
                       config.getProjectIdBodyField());
-                  final String resolvedAdminEndpoint = internalRoutesConfigs.getProjectsCore()
-                      .getAdminEndpoint()
-                      .replace(configConstants.getProjectIdPlaceholder(), projectId);
+                  final String resolvedAdminEndpoint = internalRoutesConfigs.projectsCore()
+                      .adminEndpoint()
+                      .replace(configConstants.projectIdPlaceholder(), projectId);
                   // Request to a path managed by the Gateway
                   final WebClient client = WebClient.create();
                   return client.get().uri(
                           UriComponentsBuilder.fromUriString(
-                                  apiConfigs.getProjects().getCoreBaseUrl())
-                              .pathSegment(apiConfigs.getProjects().getCoreOutBasePath(),
+                                  apiConfigs.projects().core().baseURL())
+                              .pathSegment(apiConfigs.projects().core().outBasePath(),
                                   resolvedAdminEndpoint).build().toUri())
-                      .header(apiConfigs.getCommon().getContributorHeader(), encodedA6Contributor)
+                      .header(apiConfigs.common().contributorHeader(), encodedA6Contributor)
                       .exchangeToMono(response -> response.bodyToMono(jsonType))
                       .switchIfEmpty(Mono.just(Collections.emptyMap())).map(isAdminResponse -> {
                         final boolean isAdmin =
                             isAdminResponse.containsKey(
-                                internalRoutesConfigs.getProjectsCoreParams()
-                                    .getIsAdminResponseField())
+                                internalRoutesConfigs.projectsCoreParams()
+                                    .isAdminResponseField())
                                 && isAdminResponse.get(
-                                internalRoutesConfigs.getProjectsCoreParams()
-                                    .getIsAdminResponseField()).equals(true);
+                                internalRoutesConfigs.projectsCoreParams()
+                                    .isAdminResponseField()).equals(true);
                         if (!config.isNonAdminRequestAllowed() && !isAdmin) {
                           throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                               "Only Project admin can proceed");
                         }
                         filterExchange.getAttributes()
-                            .put(configConstants.getIsProjectAdminAttribute(),
+                            .put(configConstants.isProjectAdminAttribute(),
                                 isAdmin);
                         return Optional.ofNullable(input).orElse(Collections.emptyMap());
                       });
@@ -120,7 +120,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
       final String projectIdBodyField) {
     return Optional.ofNullable(
             exchange.getAttribute(ServerWebExchangeUtils.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
-        .map(Map.class::cast).map(attributes -> attributes.get(configConstants.getProjectIdParam()))
+        .map(Map.class::cast).map(attributes -> attributes.get(configConstants.projectIdParam()))
         .map(String.class::cast)
         .orElseGet(() -> obtainProjectIdFromInputBody(input, projectIdBodyField));
   }

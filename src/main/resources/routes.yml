@@ -23,87 +23,87 @@ spring:
             - ContributorsAdminRequest
         # PROJECTS CORE
         - id: projectscore_route--get--shallow
-          uri: ${configs.api.projects.coreBaseURL}
+          uri: ${configs.api.projects.core.baseURL}
           predicates:
             - Path=/projects/core/**
             - Method=GET
             - Query=shallow
           filters:
-            - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
+            - RewritePath=/${configs.api.projects.core.inBasePath}(?<segment>.*), /${configs.api.projects.core.outBasePath}$\{segment}
         - id: projectscore_route--get
-          uri: ${configs.api.projects.coreBaseURL}
+          uri: ${configs.api.projects.core.baseURL}
           predicates:
             - Path=/projects/core/**
             - Method=GET
           filters:
             - AddContributorHeader
-            - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
+            - RewritePath=/${configs.api.projects.core.inBasePath}(?<segment>.*), /${configs.api.projects.core.outBasePath}$\{segment}
             - ComposeFieldApi=id,/projects/presentations,projectIds,shallow,projectId,presentations,list
         - id: projects_route--update
-          uri: ${configs.api.projects.coreBaseURL}
+          uri: ${configs.api.projects.core.baseURL}
           predicates:
             - Path=/projects/core/{projectId}
             - Method=PUT
           filters:
-            - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
+            - RewritePath=/${configs.api.projects.core.inBasePath}(?<segment>.*), /${configs.api.projects.core.outBasePath}$\{segment}
             - ValidateIsAdmin=false,false,id
             - SetRequestHeader=Content-Type, application/prs.hal-forms+json
             - AddContributorHeader
         - id: projectscore_route--post
-          uri: ${configs.api.projects.coreBaseURL}
+          uri: ${configs.api.projects.core.baseURL}
           predicates:
             - Path=/projects/core
             - Method=POST
           filters:
             - SetRequestHeader=Content-Type, application/prs.hal-forms+json
-            - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
+            - RewritePath=/${configs.api.projects.core.inBasePath}(?<segment>.*), /${configs.api.projects.core.outBasePath}$\{segment}
             - AddContributorHeader
         - id: projectscore_route
-          uri: ${configs.api.projects.coreBaseURL}
+          uri: ${configs.api.projects.core.baseURL}
           predicates:
             - Path=/projects/core
           filters:
-            - RewritePath=/${configs.api.projects.coreInBasePath}(?<segment>.*), /${configs.api.projects.coreOutBasePath}$\{segment}
+            - RewritePath=/${configs.api.projects.core.inBasePath}(?<segment>.*), /${configs.api.projects.core.outBasePath}$\{segment}
             - AddContributorHeader
         # PROJECTS PRESENTATION
         - id: projectspresentation_route--get--shallow
-          uri: ${configs.api.projects.presentationBaseURL}
+          uri: ${configs.api.projects.presentation.baseURL}
           predicates:
             - Path=/projects/presentations/**
             - Method=GET
             - Query=shallow
           filters:
-            - RewritePath=/${configs.api.projects.presentationInBasePath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
+            - RewritePath=/${configs.api.projects.presentation.inBasePath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
         - id: projectspresentation_route--get
-          uri: ${configs.api.projects.presentationBaseURL}
+          uri: ${configs.api.projects.presentation.baseURL}
           predicates:
             - Path=/projects/presentations/**
             - Method=GET
           filters:
-            - RewritePath=/${configs.api.projects.presentationInBasePath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
+            - RewritePath=/${configs.api.projects.presentation.inBasePath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         - id: projectspresentation_route--get-single
-          uri: ${configs.api.projects.presentationBaseURL}
+          uri: ${configs.api.projects.presentation.baseURL}
           predicates:
             - Path=/projects/{projectId}/presentations/**
             - Method=GET
           filters:
             - ValidateIsAdmin=true,true
             - AddContributorHeader
-            - RewritePath=/${configs.api.projects.presentationInProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
+            - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         - id: projectspresentation_route--update
-          uri: ${configs.api.projects.presentationBaseURL}
+          uri: ${configs.api.projects.presentation.baseURL}
           predicates:
             - Path=/projects/{projectId}/presentations/{projectPresentationId}
             - Method=PUT
           filters:
-            - RewritePath=/${configs.api.projects.presentationInProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
+            - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
             - SetRequestHeader=Content-Type, application/prs.hal-forms+json
             - ValidateIsAdmin=false,false,projectId
             - AddContributorHeader
         - id: projectspresentation_route--post
-          uri: ${configs.api.projects.presentationBaseURL}
+          uri: ${configs.api.projects.presentation.baseURL}
           predicates:
             - Path=/projects/{projectId}/presentations/**
             - Method=POST
@@ -111,13 +111,13 @@ spring:
               - ValidateIsAdmin
               - AddContributorHeader
               - SetRequestHeader=Content-Type, application/prs.hal-forms+json
-              - RewritePath=/${configs.api.projects.presentationInProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
+              - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
         - id: projectspresentation_route
-          uri: ${configs.api.projects.presentationBaseURL}
+          uri: ${configs.api.projects.presentation.baseURL}
           predicates:
             - Path=/projects/presentations/**
           filters:
-            - RewritePath=/${configs.api.projects.presentationInBasePath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
+            - RewritePath=/${configs.api.projects.presentation.inBasePath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
         # CLUBS
         - id: clubs_route--get-wellknown-club
           uri: ${configs.api.clubs.baseURL}
