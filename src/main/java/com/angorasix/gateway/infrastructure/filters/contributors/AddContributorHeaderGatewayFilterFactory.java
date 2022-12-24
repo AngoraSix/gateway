@@ -37,7 +37,7 @@ public class AddContributorHeaderGatewayFilterFactory extends
   public AddContributorHeaderGatewayFilterFactory(final ObjectMapper objectMapper,
       final GatewayApiConfigurations apiConfigurations, final ConfigConstants configConstants) {
     super(Config.class);
-    this.contributorHeader = apiConfigurations.getCommon().getContributorHeader();
+    this.contributorHeader = apiConfigurations.common().contributorHeader();
     this.objectMapper = objectMapper;
     this.configConstants = configConstants;
   }
@@ -50,9 +50,9 @@ public class AddContributorHeaderGatewayFilterFactory extends
         .map(a6Contributor -> {
           if (exchange.getAttributes()
               .containsKey(
-                  configConstants.getIsProjectAdminAttribute())) {
+                  configConstants.isProjectAdminAttribute())) {
             a6Contributor.setProjectAdmin(exchange.getAttribute(
-                configConstants.getIsProjectAdminAttribute()));
+                configConstants.isProjectAdminAttribute()));
           }
           final String encodedContributor = A6ContributorHeaderHelper.encodeContributorHeader(
               a6Contributor, objectMapper);

@@ -65,35 +65,36 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
         .map(SecurityContext::getAuthentication)
         .map(A6ContributorHeaderHelper::buildFromAuthentication)
         .flatMap(a6Contributor -> {
-          final String projectsEndpoint = internalRoutesConfigs.getProjectsCore()
-              .getProjectsEndpoint();
+          final String projectsEndpoint = internalRoutesConfigs.projectsCore()
+              .projectsEndpoint();
           // Request to a path managed by the Gateway
           final WebClient client = WebClient.create();
           final String encodedContributor = A6ContributorHeaderHelper.encodeContributorHeader(
               a6Contributor, objectMapper);
           final String adminId = Optional.ofNullable(
-                  filterExchange.getRequest().getQueryParams().getFirst(config.getAdminIdQueryParamKey()))
+                  filterExchange.getRequest().getQueryParams()
+                      .getFirst(config.getAdminIdQueryParamKey()))
               .orElse(a6Contributor.getContributorId());
           return client.get().uri(
                   UriComponentsBuilder.fromUriString(
-                          apiConfigs.getProjects().getCoreBaseUrl())
-                      .pathSegment(apiConfigs.getProjects().getCoreOutBasePath(),
+                          apiConfigs.projects().core().baseURL())
+                      .pathSegment(apiConfigs.projects().core().outBasePath(),
                           projectsEndpoint)
                       .queryParam(
-                          internalRoutesConfigs.getProjectsCoreParams().getAdminIdQueryParam(),
+                          internalRoutesConfigs.projectsCoreParams().adminIdQueryParam(),
                           adminId)
                       .build().toUri())
-              .header(apiConfigs.getCommon().getContributorHeader(), encodedContributor)
+              .header(apiConfigs.common().contributorHeader(), encodedContributor)
               .exchangeToFlux(response -> response.bodyToFlux(jsonType))
               .map(e -> (String) e.get(
-                  internalRoutesConfigs.getProjectsCoreParams()
-                      .getProjectIdResponseField())).collectList()
+                  internalRoutesConfigs.projectsCoreParams()
+                      .projectIdResponseField())).collectList()
               .map(projectIds -> {
                 filterExchange.getAttributes()
-                    .put(configConstants.getProjectIdsAttribute(),
+                    .put(configConstants.projectIdsAttribute(),
                         projectIds);
                 filterExchange.getAttributes()
-                    .put(configConstants.getIsProjectAdminAttribute(),
+                    .put(configConstants.isProjectAdminAttribute(),
                         adminId.equals(a6Contributor.getContributorId()));
                 return filterExchange;
               });

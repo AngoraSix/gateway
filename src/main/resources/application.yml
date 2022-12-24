@@ -24,13 +24,15 @@ configs:
       inBasePath: ${A6_GATEWAY_CONTRIBUTORS_INBASEPATH:contributors}
       outBasePath: ${A6_GATEWAY_CONTRIBUTORS_OUTBASEPATH:auth/admin/realms/Angorasix/users}
     projects:
-      coreBaseURL: ${A6_GATEWAY_PROJECTS_CORE_URI:http://localhost:9082}
-      coreInBasePath: ${A6_GATEWAY_PROJECTS_CORE_INBASEPATH:projects/core}
-      coreOutBasePath: ${A6_GATEWAY_PROJECTS_CORE_OUTBASEPATH:projects-core}
-      presentationBaseURL: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
-      presentationInBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INBASEPATH:projects/presentations}
-      presentationInProjectBasedPath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INPROJECTBASEDPATH:projects/(?<projectId>.*?)/presentations}
-      presentationOutBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_OUTBASEPATH:projects-presentation}
+      core:
+        baseURL: ${A6_GATEWAY_PROJECTS_CORE_URI:http://localhost:9082}
+        inBasePath: ${A6_GATEWAY_PROJECTS_CORE_INBASEPATH:projects/core}
+        outBasePath: ${A6_GATEWAY_PROJECTS_CORE_OUTBASEPATH:projects-core}
+      presentation:
+        baseURL: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
+        inBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INBASEPATH:projects/presentations}
+        inProjectBasedPath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INPROJECTBASEDPATH:projects/(?<projectId>.*?)/presentations}
+        outBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_OUTBASEPATH:projects-presentation}
     media:
       baseURL: ${A6_GATEWAY_MEDIA_URI:http://localhost:9084}
       inBasePath: ${A6_GATEWAY_MEDIA_INBASEPATH:media}

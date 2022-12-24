@@ -1,7 +1,6 @@
 package com.angorasix.gateway.infrastructure.config.internalroutes;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
 
 /**
  * <p>
@@ -11,23 +10,7 @@ import org.springframework.boot.context.properties.ConstructorBinding;
  * @author rozagerardo
  */
 @ConfigurationProperties(prefix = "configs.internal-routes")
-@ConstructorBinding
-public class GatewayInternalRoutesConfigurations {
+public record GatewayInternalRoutesConfigurations(ProjectsCoreInternalRoutes projectsCore,
+                                                  ProjectsCoreInternalParams projectsCoreParams) {
 
-  private final ProjectsCoreInternalRoutes projectsCore;
-  private final ProjectsCoreInternalParams projectsCoreParams;
-
-  public GatewayInternalRoutesConfigurations(
-      ProjectsCoreInternalRoutes projectsCore, ProjectsCoreInternalParams projectsCoreParams) {
-    this.projectsCore = projectsCore;
-    this.projectsCoreParams = projectsCoreParams;
-  }
-
-  public ProjectsCoreInternalRoutes getProjectsCore() {
-    return projectsCore;
-  }
-
-  public ProjectsCoreInternalParams getProjectsCoreParams() {
-    return projectsCoreParams;
-  }
 }
