@@ -7,6 +7,7 @@ package com.angorasix.gateway.infrastructure.config.api;
  *
  * @author rozagerardo
  */
-public record ProjectsApi(ProjectsCoreApi core, ProjectsPresentationApi presentation) {
+public record ProjectsApi(ProjectsCoreApi core, ProjectsPresentationApi presentation,
+                          ProjectsManagementApi management) {
 
 }
