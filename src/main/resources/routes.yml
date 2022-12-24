@@ -98,9 +98,10 @@ spring:
             - Path=/projects/{projectId}/presentations/{projectPresentationId}
             - Method=PUT
           filters:
+            - RewritePath=/${configs.api.projects.presentationInProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
             - SetRequestHeader=Content-Type, application/prs.hal-forms+json
-            - RewritePath=/${configs.api.projects.presentationInBasePath}/*(?<segment>.*), /${configs.api.projects.presentationOutBasePath}$\{segment}
             - ValidateIsAdmin=false,false,projectId
+            - AddContributorHeader
         - id: projectspresentation_route--post
           uri: ${configs.api.projects.presentationBaseURL}
           predicates:
