@@ -4,6 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * <p>
+ *   Configs for constant aspects of the application.
  * </p>
  *
  * @author rozagerardo

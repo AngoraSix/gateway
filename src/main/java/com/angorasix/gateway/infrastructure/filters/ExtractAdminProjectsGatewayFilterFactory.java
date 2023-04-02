@@ -77,7 +77,7 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
               .orElse(a6Contributor.getContributorId());
           return client.get().uri(
                   UriComponentsBuilder.fromUriString(
-                          apiConfigs.projects().core().baseURL())
+                          apiConfigs.projects().core().baseUrl())
                       .pathSegment(apiConfigs.projects().core().outBasePath(),
                           projectsEndpoint)
                       .queryParam(
@@ -119,8 +119,8 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
       return adminIdQueryParamKey;
     }
 
-    public void setAdminIdQueryParamKey(String contributorIdQueryParamKey) {
-      this.adminIdQueryParamKey = contributorIdQueryParamKey;
+    public void setAdminIdQueryParamKey(final String adminIdQueryParamKey) {
+      this.adminIdQueryParamKey = adminIdQueryParamKey;
     }
   }
 }
