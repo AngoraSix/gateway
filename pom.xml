@@ -68,8 +68,7 @@
   <parent>
     <artifactId>parent-pom-spring-java</artifactId>
     <groupId>com.angorasix</groupId>
-    <relativePath>../parent-poms/parent-pom-spring-java</relativePath>
-    <version>0.1.2-SNAPSHOT</version>
+    <version>0.1.3-SNAPSHOT</version>
   </parent>
 
   <properties>
