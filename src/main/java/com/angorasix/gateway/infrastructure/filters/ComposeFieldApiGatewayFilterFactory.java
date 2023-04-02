@@ -1,5 +1,6 @@
 package com.angorasix.gateway.infrastructure.filters;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,20 +54,13 @@ public class ComposeFieldApiGatewayFilterFactory extends
           if (!filterExchange.getResponse().getStatusCode().is2xxSuccessful() || input == null) {
             return Mono.justOrEmpty(input);
           }
-          final boolean isCollection = Collection.class.isAssignableFrom(input.getClass());
-          final boolean isMap = Map.class.isAssignableFrom(input.getClass());
-          if (!isCollection && !isMap) {
-            throw new IllegalArgumentException(
-                String.format("Trying to compose input of type [%s]", input.getClass().getName()));
-          }
+          final boolean isMap = checkIsMap(input);
           final Collection<Map<String, Object>> castedInput =
               isMap ? Collections.singletonList((Map<String, Object>) input)
                   : (List<Map<String, Object>>) input;
 
           //  extract base field values (usually ids) and join them in a "," separated string
-          final String baseFieldValues = castedInput.stream()
-              .map(bodyMap -> (String) bodyMap.get(config.getOriginBaseField()))
-              .collect(Collectors.joining(","));
+          final String baseFieldValues = extractBaseFieldValues(config, castedInput);
 
           final List<String> authHeader = filterExchange.getRequest().getHeaders()
               .get(HttpHeaders.AUTHORIZATION);
@@ -74,20 +68,41 @@ public class ComposeFieldApiGatewayFilterFactory extends
           // Request to a path managed by the Gateway
           final WebClient client = WebClient.create();
           return client.get()
-              .uri(UriComponentsBuilder.fromUriString("http://localhost").port(serverPort)
-                  .path(config.getTargetGatewayPath())
-                  .queryParam(config.getTargetComposeQueryParam(), baseFieldValues)
-                  .queryParams(CollectionUtils.toMultiValueMap(
-                      config.getTargetQueryParams()))
-                  .build().toUri())
+              .uri(generateInternalUri(config, baseFieldValues))
               .header(HttpHeaders.AUTHORIZATION,
                   CollectionUtils.isEmpty(authHeader) ? "" : authHeader.get(0))
-              .exchangeToMono(response -> response.bodyToMono(jsonType)
-                  .map(targetEntries -> processComposeRequest(targetEntries, config, castedInput,
-                      isMap))
+              .exchangeToMono(response -> response.bodyToMono(jsonType))
+              .map(targetEntries -> processComposeRequest(targetEntries, config, castedInput,
+                  isMap)
               );
         })
     );
+  }
+
+  private static boolean checkIsMap(final Object input) {
+    final boolean isCollection = Collection.class.isAssignableFrom(input.getClass());
+    final boolean isMap = Map.class.isAssignableFrom(input.getClass());
+    if (!isCollection && !isMap) {
+      throw new IllegalArgumentException(
+          String.format("Trying to compose input of type [%s]", input.getClass().getName()));
+    }
+    return isMap;
+  }
+
+  private URI generateInternalUri(final Config config, final String baseFieldValues) {
+    return UriComponentsBuilder.fromUriString("http://localhost").port(serverPort)
+        .path(config.getTargetGatewayPath())
+        .queryParam(config.getTargetComposeQueryParam(), baseFieldValues)
+        .queryParams(CollectionUtils.toMultiValueMap(
+            config.getTargetQueryParams()))
+        .build().toUri();
+  }
+
+  private static String extractBaseFieldValues(final Config config,
+      final Collection<Map<String, Object>> castedInput) {
+    return castedInput.stream()
+        .map(bodyMap -> (String) bodyMap.get(config.getOriginBaseField()))
+        .collect(Collectors.joining(","));
   }
 
   private Object processComposeRequest(

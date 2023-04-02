@@ -70,17 +70,17 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${GATEWAY_SERVICE_OAUTH_SECURITY_ISSUER_URI:http://localhost:9081/auth/realms/Angorasix}
+          issuer-uri: ${A6_GATEWAY_OAUTH_SECURITY_ISSUER_URI:http://localhost:9081/auth/realms/Angorasix}
       client:
         registration:
           contributors:
-            client-id: ${GATEWAY_SERVICE_OAUTH_CONTRIBUTORS_CLIENT_ID:contributorsClientId}
-            client-secret: ${GATEWAY_SERVICE_OAUTH_CONTRIBUTORS_CLIENT_SECRET:contributorsSecret}
+            client-id: ${A6_GATEWAY_OAUTH_CONTRIBUTORS_CLIENT_ID:contributorsClientId}
+            client-secret: ${A6_GATEWAY_OAUTH_CONTRIBUTORS_CLIENT_SECRET:contributorsSecret}
             authorization-grant-type: client_credentials
             scope:
         provider:
           contributors:
-            token-uri: ${GATEWAY_SERVICE_OAUTH_CONTRIBUTORS_TOKEN_URI:http://localhost:9081/auth/realms/Angorasix/protocol/openid-connect/token}
+            token-uri: ${A6_GATEWAY_OAUTH_CONTRIBUTORS_TOKEN_URI:http://localhost:9081/auth/realms/Angorasix/protocol/openid-connect/token}
   application:
     name: ${APP_NAME:gateway}
   cloud:
@@ -88,7 +88,7 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: ${GATEWAY_SERVICE_CORS_ALLOWEDORIGINS:http://localhost:90}
+            allowedOrigins: ${A6_GATEWAY_CORS_ALLOWEDORIGINS:http://localhost:90}
             allowedMethods:
               - GET
       #      httpclient:

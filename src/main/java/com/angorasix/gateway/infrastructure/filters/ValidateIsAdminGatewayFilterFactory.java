@@ -83,13 +83,13 @@ public class ValidateIsAdminGatewayFilterFactory extends
                   final String projectId = obtainProjectId(filterExchange, input,
                       config.getProjectIdBodyField());
                   final String resolvedAdminEndpoint = internalRoutesConfigs.projectsCore()
-                      .adminEndpoint()
+                      .isAdminEndpoint()
                       .replace(configConstants.projectIdPlaceholder(), projectId);
                   // Request to a path managed by the Gateway
                   final WebClient client = WebClient.create();
                   return client.get().uri(
                           UriComponentsBuilder.fromUriString(
-                                  apiConfigs.projects().core().baseURL())
+                                  apiConfigs.projects().core().baseUrl())
                               .pathSegment(apiConfigs.projects().core().outBasePath(),
                                   resolvedAdminEndpoint).build().toUri())
                       .header(apiConfigs.common().contributorHeader(), encodedA6Contributor)

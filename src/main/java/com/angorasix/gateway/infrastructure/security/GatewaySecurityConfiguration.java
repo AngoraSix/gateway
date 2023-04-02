@@ -29,8 +29,16 @@ public class GatewaySecurityConfiguration {
   @Bean
   public SecurityWebFilterChain springSecurityFilterChain(final ServerHttpSecurity http) {
     http.authorizeExchange(exchanges -> exchanges
-        .pathMatchers(HttpMethod.GET, "/projects/core/**","/projects/*/presentations/**", "/projects/presentations/**",
-            "/clubs/**", "/contributors",  "/contributors/*", "/media/static/**", "/projects/*/management/**", "/projects/management/**").permitAll()
+        .pathMatchers(HttpMethod.GET,
+            "/projects/core/**",
+            "/projects/*/presentations/**",
+            "/projects/presentations/**",
+            "/clubs/**",
+            "/contributors",
+            "/contributors/*",
+            "/media/static/**",
+            "/projects/*/management/**",
+            "/projects/management/**").permitAll()
         .anyExchange().authenticated()
     ).oauth2ResourceServer().jwt();
     return http.build();

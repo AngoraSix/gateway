@@ -7,6 +7,6 @@ package com.angorasix.gateway.infrastructure.config.internalroutes;
  *
  * @author rozagerardo
  */
-public record ProjectsCoreInternalRoutes(String adminEndpoint, String projectsEndpoint) {
+public record ProjectsCoreInternalRoutes(String isAdminEndpoint, String projectsEndpoint) {
 
 }

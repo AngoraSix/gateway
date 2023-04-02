@@ -1,7 +1,5 @@
 package com.angorasix.gateway.infrastructure.config.api;
 
-import org.springframework.boot.context.properties.ConstructorBinding;
-
 /**
  * <p>
  * Contributors APIs configurations.
@@ -17,6 +15,7 @@ public record ContributorsApi(String baseUrl, String inBasePath, String outBaseP
   public String generateAddUserAttributeUri() {
     return this.baseUrl.concat(USERS_ENDPOINT);
   }
+
   public String getUsersEndpoint() {
     return USERS_ENDPOINT;
   }

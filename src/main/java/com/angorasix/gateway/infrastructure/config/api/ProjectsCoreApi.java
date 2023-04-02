@@ -7,6 +7,6 @@ package com.angorasix.gateway.infrastructure.config.api;
  *
  * @author rozagerardo
  */
-public record ProjectsCoreApi(String baseURL, String inBasePath, String outBasePath) {
+public record ProjectsCoreApi(String baseUrl, String inBasePath, String outBasePath) {
 
 }

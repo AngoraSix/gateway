@@ -4,7 +4,7 @@ spring:
       routes:
         #  CONTRIBUTORS
         - id: contributors_add_attribute_route
-          uri: ${configs.api.contributors.baseURL}
+          uri: ${configs.api.contributors.baseUrl}
           predicates:
             - Path=/contributors/attributes
             - Method=POST
@@ -23,7 +23,7 @@ spring:
             - ContributorsAdminRequest
         # PROJECTS CORE
         - id: projectscore_route--get--shallow
-          uri: ${configs.api.projects.core.baseURL}
+          uri: ${configs.api.projects.core.baseUrl}
           predicates:
             - Path=/projects/core/**
             - Method=GET
@@ -31,7 +31,7 @@ spring:
           filters:
             - RewritePath=/${configs.api.projects.core.inBasePath}(?<segment>.*), /${configs.api.projects.core.outBasePath}$\{segment}
         - id: projectscore_route--get
-          uri: ${configs.api.projects.core.baseURL}
+          uri: ${configs.api.projects.core.baseUrl}
           predicates:
             - Path=/projects/core/**
             - Method=GET
@@ -40,7 +40,7 @@ spring:
             - RewritePath=/${configs.api.projects.core.inBasePath}(?<segment>.*), /${configs.api.projects.core.outBasePath}$\{segment}
             - ComposeFieldApi=id,/projects/presentations,projectIds,shallow,projectId,presentations,list
         - id: projects_route--update
-          uri: ${configs.api.projects.core.baseURL}
+          uri: ${configs.api.projects.core.baseUrl}
           predicates:
             - Path=/projects/core/{projectId}
             - Method=PUT
@@ -50,7 +50,7 @@ spring:
             - SetRequestHeader=Content-Type, application/prs.hal-forms+json
             - AddContributorHeader
         - id: projectscore_route--post
-          uri: ${configs.api.projects.core.baseURL}
+          uri: ${configs.api.projects.core.baseUrl}
           predicates:
             - Path=/projects/core
             - Method=POST
@@ -59,7 +59,7 @@ spring:
             - RewritePath=/${configs.api.projects.core.inBasePath}(?<segment>.*), /${configs.api.projects.core.outBasePath}$\{segment}
             - AddContributorHeader
         - id: projectscore_route
-          uri: ${configs.api.projects.core.baseURL}
+          uri: ${configs.api.projects.core.baseUrl}
           predicates:
             - Path=/projects/core
           filters:
@@ -67,7 +67,7 @@ spring:
             - AddContributorHeader
         # PROJECTS PRESENTATION
         - id: projectspresentation_route--get--shallow
-          uri: ${configs.api.projects.presentation.baseURL}
+          uri: ${configs.api.projects.presentation.baseUrl}
           predicates:
             - Path=/projects/presentations/**
             - Method=GET
@@ -75,7 +75,7 @@ spring:
           filters:
             - RewritePath=/${configs.api.projects.presentation.inBasePath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
         - id: projectspresentation_route--get
-          uri: ${configs.api.projects.presentation.baseURL}
+          uri: ${configs.api.projects.presentation.baseUrl}
           predicates:
             - Path=/projects/presentations/**
             - Method=GET
@@ -83,7 +83,7 @@ spring:
             - RewritePath=/${configs.api.projects.presentation.inBasePath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         - id: projectspresentation_route--get-single
-          uri: ${configs.api.projects.presentation.baseURL}
+          uri: ${configs.api.projects.presentation.baseUrl}
           predicates:
             - Path=/projects/{projectId}/presentations/**
             - Method=GET
@@ -93,7 +93,7 @@ spring:
             - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         - id: projectspresentation_route--update
-          uri: ${configs.api.projects.presentation.baseURL}
+          uri: ${configs.api.projects.presentation.baseUrl}
           predicates:
             - Path=/projects/{projectId}/presentations/{projectPresentationId}
             - Method=PUT
@@ -103,7 +103,7 @@ spring:
             - ValidateIsAdmin=false,false,projectId
             - AddContributorHeader
         - id: projectspresentation_route--post
-          uri: ${configs.api.projects.presentation.baseURL}
+          uri: ${configs.api.projects.presentation.baseUrl}
           predicates:
             - Path=/projects/{projectId}/presentations/**
             - Method=POST
@@ -113,14 +113,14 @@ spring:
               - SetRequestHeader=Content-Type, application/prs.hal-forms+json
               - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
         - id: projectspresentation_route
-          uri: ${configs.api.projects.presentation.baseURL}
+          uri: ${configs.api.projects.presentation.baseUrl}
           predicates:
             - Path=/projects/presentations/**
           filters:
             - RewritePath=/${configs.api.projects.presentation.inBasePath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
         # PROJECTS MANAGEMENT
         - id: projectsmanagementcore_route--get--shallow
-          uri: ${configs.api.projects.management.baseURL}
+          uri: ${configs.api.projects.management.baseUrl}
           predicates:
             - Path=/projects/management/**
             - Method=GET
@@ -128,7 +128,7 @@ spring:
           filters:
             - RewritePath=/${configs.api.projects.management.inBasePath}(?<segment>.*), /${configs.api.projects.management.outBasePath}$\{segment}
         - id: projectsmanagementcore_route--get
-          uri: ${configs.api.projects.management.baseURL}
+          uri: ${configs.api.projects.management.baseUrl}
           predicates:
             - Path=/projects/management/**
             - Method=GET
@@ -136,7 +136,7 @@ spring:
             - RewritePath=/${configs.api.projects.management.inBasePath}(?<segment>.*), /${configs.api.projects.management.outBasePath}$\{segment}
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         - id: projectsmanagementcore_route--get-single-by-projectid
-          uri: ${configs.api.projects.management.baseURL}
+          uri: ${configs.api.projects.management.baseUrl}
           predicates:
             - Path=/projects/{projectId}/management
             - Method=GET
@@ -146,7 +146,7 @@ spring:
             - RewritePath=/${configs.api.projects.management.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.management.outProjectBasedPath}$\{segment}
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         - id: projectsmanagementcore_route--get-single
-          uri: ${configs.api.projects.management.baseURL}
+          uri: ${configs.api.projects.management.baseUrl}
           predicates:
             - Path=/projects/{projectId}/management/**
             - Method=GET
@@ -157,7 +157,7 @@ spring:
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         # CLUBS
         - id: clubs_route--get-wellknown-club
-          uri: ${configs.api.clubs.baseURL}
+          uri: ${configs.api.clubs.baseUrl}
           predicates:
             - Path=/clubs/well-known/{projectId}/{clubType}
             - Method=GET
@@ -166,7 +166,7 @@ spring:
             - AddContributorHeader
             - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
         - id: clubs_route--get-administered-wellknown-club
-          uri: ${configs.api.clubs.baseURL}
+          uri: ${configs.api.clubs.baseUrl}
           predicates:
             - Path=/clubs/well-known
             - Method=GET
@@ -176,7 +176,7 @@ spring:
             - AddContributorHeader
             - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
         - id: clubs_route--patch-wellknown-club
-          uri: ${configs.api.clubs.baseURL}
+          uri: ${configs.api.clubs.baseUrl}
           predicates:
             - Path=/clubs/well-known/{projectId}/{type}
             - Method=PATCH
@@ -186,7 +186,7 @@ spring:
             - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
         # MEDIA
         - id: media_route
-          uri: ${configs.api.media.baseURL}
+          uri: ${configs.api.media.baseUrl}
           predicates:
             - Path=/media/**
           filters:

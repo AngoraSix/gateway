@@ -1,9 +1,5 @@
 package com.angorasix.gateway.infrastructure.filters;
 
-import com.angorasix.gateway.infrastructure.config.api.GatewayApiConfigurations;
-import com.angorasix.gateway.infrastructure.config.constants.ConfigConstants;
-import com.angorasix.gateway.infrastructure.config.internalroutes.GatewayInternalRoutesConfigurations;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -27,14 +23,9 @@ public class AddQueryParamFromAttributeGatewayFilterFactory extends
   /**
    * Main constructor with required params.
    *
-   * @param objectMapper          the ObjectMapper configured in the service
-   * @param apiConfigs            API configs
-   * @param internalRoutesConfigs internal Routes configs to route composing call
+   * @param addRequestParamFilter filter param
    */
-  public AddQueryParamFromAttributeGatewayFilterFactory(final ObjectMapper objectMapper,
-      final GatewayApiConfigurations apiConfigs,
-      final GatewayInternalRoutesConfigurations internalRoutesConfigs,
-      final ConfigConstants configConstants,
+  public AddQueryParamFromAttributeGatewayFilterFactory(
       final AddRequestParameterGatewayFilterFactory addRequestParamFilter) {
     super(Config.class);
     this.addRequestParamFilter = addRequestParamFilter;
@@ -72,7 +63,7 @@ public class AddQueryParamFromAttributeGatewayFilterFactory extends
       return attributeField;
     }
 
-    public void setAttributeField(String attributeField) {
+    public void setAttributeField(final String attributeField) {
       this.attributeField = attributeField;
     }
 
@@ -80,7 +71,7 @@ public class AddQueryParamFromAttributeGatewayFilterFactory extends
       return queryParamKey;
     }
 
-    public void setQueryParamKey(String queryParamKey) {
+    public void setQueryParamKey(final String queryParamKey) {
       this.queryParamKey = queryParamKey;
     }
   }

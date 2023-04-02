@@ -24,7 +24,8 @@ public class ModifyMethodGatewayFilterFactory extends
 
   @Override
   public GatewayFilter apply(final Config config) {
-    return (exchange, chain) -> chain.filter(exchange.mutate().request(req -> req.method(config.getMethod())).build());
+    return (exchange, chain) -> chain.filter(
+        exchange.mutate().request(req -> req.method(config.getMethod())).build());
   }
 
   @Override
