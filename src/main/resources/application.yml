@@ -20,31 +20,31 @@ configs:
     common:
       contributorHeader: ${A6_GATEWAY_COMMON_CONTRIBUTORHEADER:A6-Contributor}
     contributors:
-      baseURL: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:9081}
+      baseUrl: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:9081}
       inBasePath: ${A6_GATEWAY_CONTRIBUTORS_INBASEPATH:contributors}
       outBasePath: ${A6_GATEWAY_CONTRIBUTORS_OUTBASEPATH:auth/admin/realms/Angorasix/users}
     projects:
       core:
-        baseURL: ${A6_GATEWAY_PROJECTS_CORE_URI:http://localhost:9082}
+        baseUrl: ${A6_GATEWAY_PROJECTS_CORE_URI:http://localhost:9082}
         inBasePath: ${A6_GATEWAY_PROJECTS_CORE_INBASEPATH:projects/core}
         outBasePath: ${A6_GATEWAY_PROJECTS_CORE_OUTBASEPATH:projects-core}
       presentation:
-        baseURL: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
+        baseUrl: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
         inBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INBASEPATH:projects/presentations}
         inProjectBasedPath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INPROJECTBASEDPATH:projects/(?<projectId>.*?)/presentations}
         outBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_OUTBASEPATH:projects-presentation}
       management:
-        baseURL: ${A6_GATEWAY_PROJECTS_MANAGEMENT_URI:http://localhost:9086}
+        baseUrl: ${A6_GATEWAY_PROJECTS_MANAGEMENT_URI:http://localhost:9086}
         inBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INBASEPATH:projects/management}
         inProjectBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INPROJECTBASEDPATH:projects/(?<projectId>.*?)/management}
         outProjectBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_OUTPROJECTBASEDPATH:management-core/project/$\{projectId}}
         outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_OUTBASEPATH:management-core}
     media:
-      baseURL: ${A6_GATEWAY_MEDIA_URI:http://localhost:9084}
+      baseUrl: ${A6_GATEWAY_MEDIA_URI:http://localhost:9084}
       inBasePath: ${A6_GATEWAY_MEDIA_INBASEPATH:media}
       outBasePath: ${A6_GATEWAY_MEDIA_OUTBASEPATH:}
     clubs:
-      baseURL: ${A6_GATEWAY_CLUBS_URI:http://localhost:9085}
+      baseUrl: ${A6_GATEWAY_CLUBS_URI:http://localhost:9085}
       inBasePath: ${A6_GATEWAY_CLUBS_INBASEPATH:clubs}
       outBasePath: ${A6_GATEWAY_CLUBS_OUTBASEPATH:clubs}
   internalRoutes:
@@ -65,10 +65,10 @@ configs:
 
 spring:
   config:
-    import: file:env.properties,classpath:/routes.yml
+    import: optional:file:config/env.properties, optional:file:/config/env.properties, classpath:/routes.yml
   security:
     oauth2:
-      resourceserver:
+      resource-server:
         jwt:
           issuer-uri: ${A6_GATEWAY_OAUTH_SECURITY_ISSUER_URI:http://localhost:9081/auth/realms/Angorasix}
       client:
@@ -85,7 +85,7 @@ spring:
     name: ${APP_NAME:gateway}
   cloud:
     gateway:
-      globalcors:
+      global-cors:
         cors-configurations:
           '[/**]':
             allowedOrigins: ${A6_GATEWAY_CORS_ALLOWEDORIGINS:http://localhost:90}
