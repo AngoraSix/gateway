@@ -14,7 +14,7 @@ spring:
             - ContributorsAdminRequest
             - UserScopedRequest
         - id: contributors_get_contributor
-          uri: http://localhost:9081
+          uri: http://localhost:${server.port}
           predicates:
             - Path=/contributors/{contributorId}
             - Method=GET

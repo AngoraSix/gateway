@@ -3,17 +3,11 @@ server:
 
 logging:
   level:
-    reactor:
-      netty: DEBUG
-    org:
-      springframework:
-        #        web:
-        #          reactive: DEBUG
-        #        http:
-        #          server:
-        #            reactive: DEBUG
-        cloud:
-          gateway: DEBUG
+    "[org.springframework.cloud.gateway]": DEBUG
+    "[org.springframework.http.server.reactive]": DEBUG
+    "[org.springframework.web.reactive]": DEBUG
+    "[org.springframework.boot.autoconfigure.web]": DEBUG
+    "[reactor.netty]": DEBUG
 
 configs:
   api:
