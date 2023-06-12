@@ -11,16 +11,15 @@ spring:
           filters:
             - RewritePath=/${configs.api.contributors.inBasePath}(?<segment>.*), /${configs.api.contributors.outBasePath}/:userId
             - ModifyMethod=PUT
-            - ContributorsAdminRequest
             - UserScopedRequest
         - id: contributors_get_contributor
-          uri: http://localhost:${server.port}
+          uri: ${configs.api.contributors.baseUrl}
           predicates:
-            - Path=/contributors/{contributorId}
+            - Path=/contributors/**
             - Method=GET
           filters:
-            - RewritePath=/${configs.api.contributors.inBasePath}/(?<segment>.*), /${configs.api.contributors.outBasePath}/$\{segment}
-            - ContributorsAdminRequest
+            - RewritePath=/${configs.api.contributors.inBasePath}(?<segment>.*), /${configs.api.contributors.outBasePath}$\{segment}
+            - TokenRelay=
         # PROJECTS CORE
         - id: projectscore_route--get--shallow
           uri: ${configs.api.projects.core.baseUrl}
@@ -57,7 +56,7 @@ spring:
           filters:
             - SetRequestHeader=Content-Type, application/prs.hal-forms+json
             - RewritePath=/${configs.api.projects.core.inBasePath}(?<segment>.*), /${configs.api.projects.core.outBasePath}$\{segment}
-            - AddContributorHeader
+            - TokenRelay=
         - id: projectscore_route
           uri: ${configs.api.projects.core.baseUrl}
           predicates:
@@ -82,6 +81,7 @@ spring:
           filters:
             - RewritePath=/${configs.api.projects.presentation.inBasePath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
+            - TokenRelay=
         - id: projectspresentation_route--get-single
           uri: ${configs.api.projects.presentation.baseUrl}
           predicates:
