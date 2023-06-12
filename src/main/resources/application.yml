@@ -16,7 +16,7 @@ configs:
     contributors:
       baseUrl: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:9081}
       inBasePath: ${A6_GATEWAY_CONTRIBUTORS_INBASEPATH:contributors}
-      outBasePath: ${A6_GATEWAY_CONTRIBUTORS_OUTBASEPATH:auth/admin/realms/Angorasix/users}
+      outBasePath: ${A6_GATEWAY_CONTRIBUTORS_OUTBASEPATH:contributors}
     projects:
       core:
         baseUrl: ${A6_GATEWAY_PROJECTS_CORE_URI:http://localhost:9082}
@@ -64,17 +64,7 @@ spring:
     oauth2:
       resource-server:
         jwt:
-          issuer-uri: ${A6_GATEWAY_OAUTH_SECURITY_ISSUER_URI:http://localhost:9081/auth/realms/Angorasix}
-      client:
-        registration:
-          contributors:
-            client-id: ${A6_GATEWAY_OAUTH_CONTRIBUTORS_CLIENT_ID:contributorsClientId}
-            client-secret: ${A6_GATEWAY_OAUTH_CONTRIBUTORS_CLIENT_SECRET:contributorsSecret}
-            authorization-grant-type: client_credentials
-            scope:
-        provider:
-          contributors:
-            token-uri: ${A6_GATEWAY_OAUTH_CONTRIBUTORS_TOKEN_URI:http://localhost:9081/auth/realms/Angorasix/protocol/openid-connect/token}
+          issuer-uri: ${A6_GATEWAY_OAUTH_SECURITY_ISSUER_URI:http://localhost:9081}
   application:
     name: ${APP_NAME:gateway}
   cloud:

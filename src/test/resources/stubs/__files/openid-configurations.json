@@ -109,7 +109,7 @@
     "form_post.jwt",
     "jwt"
   ],
-  "registration_endpoint": "http://localhost:{{{request.port}}}/auth/realms/Angorasix/clients-registrations/openid-connect",
+  "registration_endpoint": "http://localhost:{{{request.port}}}/oauth2/v1/authorize",
   "token_endpoint_auth_methods_supported": [
     "private_key_jwt",
     "client_secret_basic",
@@ -262,7 +262,7 @@
     "revocation_endpoint": "http://localhost:{{{request.port}}}/revoke",
     "introspection_endpoint": "http://localhost:{{{request.port}}}/token/introspect",
     "device_authorization_endpoint": "http://localhost:{{{request.port}}}/auth/device",
-    "registration_endpoint": "http://localhost:{{{request.port}}}/auth/realms/Angorasix/clients-registrations/openid-connect",
+    "registration_endpoint": "http://localhost:{{{request.port}}}/oauth2/v1/authorize",
     "userinfo_endpoint": "http://localhost:{{{request.port}}}/userinfo",
     "pushed_authorization_request_endpoint": "http://localhost:{{{request.port}}}/ext/par/request",
     "backchannel_authentication_endpoint": "http://localhost:{{{request.port}}}/ext/ciba/auth"
