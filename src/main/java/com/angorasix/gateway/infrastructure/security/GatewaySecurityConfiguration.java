@@ -34,6 +34,7 @@ public class GatewaySecurityConfiguration {
             "/projects/*/presentations/**",
             "/projects/presentations/**",
             "/clubs/**",
+            "/contributors/**",
             "/media/static/**",
             "/projects/*/management/**",
             "/projects/management/**").permitAll()
