@@ -84,7 +84,8 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
                           internalRoutesConfigs.projectsCoreParams().adminIdQueryParam(),
                           adminId)
                       .build().toUri())
-              .header(apiConfigs.common().contributorHeader(), encodedContributor)
+              // TODO: Fix this, now using Token Relay
+//              .header(apiConfigs.common().contributorHeader(), encodedContributor)
               .exchangeToFlux(response -> response.bodyToFlux(jsonType))
               .map(e -> (String) e.get(
                   internalRoutesConfigs.projectsCoreParams()

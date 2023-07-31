@@ -8,11 +8,10 @@ logging:
     "[org.springframework.web.reactive]": DEBUG
     "[org.springframework.boot.autoconfigure.web]": DEBUG
     "[reactor.netty]": DEBUG
+    "[org.springframework.security]": DEBUG
 
 configs:
   api:
-    common:
-      contributorHeader: ${A6_GATEWAY_COMMON_CONTRIBUTORHEADER:A6-Contributor}
     contributors:
       baseUrl: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:9081}
       inBasePath: ${A6_GATEWAY_CONTRIBUTORS_INBASEPATH:contributors}
@@ -59,12 +58,7 @@ configs:
 
 spring:
   config:
-    import: optional:file:config/env.properties, optional:file:/config/env.properties, classpath:/routes.yml
-  security:
-    oauth2:
-      resource-server:
-        jwt:
-          issuer-uri: ${A6_GATEWAY_OAUTH_SECURITY_ISSUER_URI:http://localhost:9081}
+    import: optional:file:config/env.properties, optional:file:/config/env.properties, classpath:/routes.yml, , classpath:/security.yml
   application:
     name: ${APP_NAME:gateway}
   cloud:
