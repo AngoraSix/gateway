@@ -174,8 +174,6 @@ spring:
             - Method=GET
           filters:
             - TokenRelay
-#            - ExtractAdminProjects
-#            - AddQueryParamFromAttribute=${configs.constants.projectIdsAttribute},${configs.internalRoutes.projectsCoreParams.projectIdQueryParam}
             - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
         - id: clubs_route--patch-wellknown-club
           uri: ${configs.api.clubs.baseUrl}
