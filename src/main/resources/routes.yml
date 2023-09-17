@@ -156,7 +156,6 @@ spring:
             - Method=GET
           filters:
             - TokenRelay
-#            - ValidateIsAdmin=true,true # GER ACA SEGUIR ESTE ENDPOINT DEVUELVE 400 pq no hay token! agregar de principal y remover
             - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
         - id: clubs_route--get-all-wellknown-club
           uri: ${configs.api.clubs.baseUrl}
@@ -174,8 +173,9 @@ spring:
             - Path=/clubs/well-known
             - Method=GET
           filters:
-            - ExtractAdminProjects
-            - AddQueryParamFromAttribute=${configs.constants.projectIdsAttribute},${configs.internalRoutes.projectsCoreParams.projectIdQueryParam}
+            - TokenRelay
+#            - ExtractAdminProjects
+#            - AddQueryParamFromAttribute=${configs.constants.projectIdsAttribute},${configs.internalRoutes.projectsCoreParams.projectIdQueryParam}
             - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
         - id: clubs_route--patch-wellknown-club
           uri: ${configs.api.clubs.baseUrl}

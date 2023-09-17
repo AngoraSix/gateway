@@ -1,9 +1,9 @@
 package com.angorasix.gateway.infrastructure.filters;
 
+import com.angorasix.commons.infrastructure.oauth2.constants.A6WellKnownClaims;
 import com.angorasix.gateway.infrastructure.config.api.GatewayApiConfigurations;
 import com.angorasix.gateway.infrastructure.config.constants.ConfigConstants;
 import com.angorasix.gateway.infrastructure.config.internalroutes.GatewayInternalRoutesConfigurations;
-import com.angorasix.gateway.infrastructure.models.headers.A6ContributorHeaderHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
@@ -12,8 +12,10 @@ import java.util.Optional;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -40,8 +42,6 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
 
   private final transient ConfigConstants configConstants;
 
-  private final transient ObjectMapper objectMapper;
-
   /**
    * Main constructor with required params.
    *
@@ -56,25 +56,24 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
     this.apiConfigs = apiConfigs;
     this.internalRoutesConfigs = internalRoutesConfigs;
     this.configConstants = configConstants;
-    this.objectMapper = objectMapper;
   }
 
   @Override
   public GatewayFilter apply(final Config config) {
     return (filterExchange, chain) -> ReactiveSecurityContextHolder.getContext()
         .map(SecurityContext::getAuthentication)
-        .map(A6ContributorHeaderHelper::buildFromAuthentication)
-        .flatMap(a6Contributor -> {
+        .map(JwtAuthenticationToken.class::cast)
+        .flatMap(auth -> {
           final String projectsEndpoint = internalRoutesConfigs.projectsCore()
               .projectsEndpoint();
           // Request to a path managed by the Gateway
           final WebClient client = WebClient.create();
-          final String encodedContributor = A6ContributorHeaderHelper.encodeContributorHeader(
-              a6Contributor, objectMapper);
+          final String authContributorId = auth.getToken()
+              .getClaim(A6WellKnownClaims.CONTRIBUTOR_ID);
           final String adminId = Optional.ofNullable(
                   filterExchange.getRequest().getQueryParams()
                       .getFirst(config.getAdminIdQueryParamKey()))
-              .orElse(a6Contributor.getContributorId());
+              .orElse(authContributorId);
           return client.get().uri(
                   UriComponentsBuilder.fromUriString(
                           apiConfigs.projects().core().baseUrl())
@@ -84,8 +83,8 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
                           internalRoutesConfigs.projectsCoreParams().adminIdQueryParam(),
                           adminId)
                       .build().toUri())
-              // TODO: Fix this, now using Token Relay
-//              .header(apiConfigs.common().contributorHeader(), encodedContributor)
+              .header(HttpHeaders.AUTHORIZATION,
+                  "Bearer " + auth.getToken().getTokenValue())
               .exchangeToFlux(response -> response.bodyToFlux(jsonType))
               .map(e -> (String) e.get(
                   internalRoutesConfigs.projectsCoreParams()
@@ -96,7 +95,7 @@ public class ExtractAdminProjectsGatewayFilterFactory extends
                         projectIds);
                 filterExchange.getAttributes()
                     .put(configConstants.isProjectAdminAttribute(),
-                        adminId.equals(a6Contributor.getContributorId()));
+                        adminId.equals(authContributorId));
                 return filterExchange;
               });
         }).flatMap(chain::filter);
