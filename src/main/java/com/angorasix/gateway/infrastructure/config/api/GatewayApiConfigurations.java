@@ -11,6 +11,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "configs.api")
 public record GatewayApiConfigurations(ContributorsApi contributors, ProjectsApi projects,
-                                       MediaApi media, CommonApi common) {
+                                       MediaApi media) {
 
 }

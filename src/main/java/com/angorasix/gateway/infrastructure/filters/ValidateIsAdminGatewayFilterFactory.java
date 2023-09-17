@@ -3,7 +3,6 @@ package com.angorasix.gateway.infrastructure.filters;
 import com.angorasix.gateway.infrastructure.config.api.GatewayApiConfigurations;
 import com.angorasix.gateway.infrastructure.config.constants.ConfigConstants;
 import com.angorasix.gateway.infrastructure.config.internalroutes.GatewayInternalRoutesConfigurations;
-import com.angorasix.gateway.infrastructure.models.headers.A6ContributorHeaderHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,9 +14,11 @@ import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFac
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
@@ -76,10 +77,9 @@ public class ValidateIsAdminGatewayFilterFactory extends
     return modifyRequestBodyFilter.apply((c) -> c.setRewriteFunction(Object.class, Object.class,
         (filterExchange, input) -> ReactiveSecurityContextHolder.getContext()
             .map(SecurityContext::getAuthentication)
-            .map(auth -> A6ContributorHeaderHelper.buildAndEncodeFromAuthentication(auth,
-                objectMapper))
+            .map(JwtAuthenticationToken.class::cast)
             .flatMap(
-                encodedA6Contributor -> {
+                auth -> {
                   final String projectId = obtainProjectId(filterExchange, input,
                       config.getProjectIdBodyField());
                   final String resolvedAdminEndpoint = internalRoutesConfigs.projectsCore()
@@ -92,7 +92,8 @@ public class ValidateIsAdminGatewayFilterFactory extends
                                   apiConfigs.projects().core().baseUrl())
                               .pathSegment(apiConfigs.projects().core().outBasePath(),
                                   resolvedAdminEndpoint).build().toUri())
-                      .header(apiConfigs.common().contributorHeader(), encodedA6Contributor)
+                      .header(HttpHeaders.AUTHORIZATION,
+                          "Bearer " + auth.getToken().getTokenValue())
                       .exchangeToMono(response -> response.bodyToMono(jsonType))
                       .switchIfEmpty(Mono.just(Collections.emptyMap())).map(isAdminResponse -> {
                         final boolean isAdmin =
@@ -139,7 +140,8 @@ public class ValidateIsAdminGatewayFilterFactory extends
 
   @Override
   public List<String> shortcutFieldOrder() {
-    return Arrays.asList("nonAdminRequestAllowed", "anonymousRequestAllowed", "projectIdBodyField");
+    return Arrays.asList("nonAdminRequestAllowed", "anonymousRequestAllowed",
+        "projectIdBodyField");
   }
 
   /**

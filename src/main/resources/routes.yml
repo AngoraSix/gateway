@@ -36,6 +36,7 @@ spring:
           filters:
             - RewritePath=/${configs.api.projects.core.inBasePath}(?<segment>.*), /${configs.api.projects.core.outBasePath}$\{segment}
             - ComposeFieldApi=id,/projects/presentations,projectIds,shallow,projectId,presentations,list
+#        TODO fix this TokenRelay
         - id: projects_route--update
           uri: ${configs.api.projects.core.baseUrl}
           predicates:
@@ -84,9 +85,10 @@ spring:
             - Path=/projects/{projectId}/presentations/**
             - Method=GET
           filters:
-            - ValidateIsAdmin=true,true
+            - TokenRelay=
             - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
+#        TODO fix this token relay, admin?, ...
         - id: projectspresentation_route--update
           uri: ${configs.api.projects.presentation.baseUrl}
           predicates:
@@ -102,7 +104,7 @@ spring:
             - Path=/projects/{projectId}/presentations/**
             - Method=POST
           filters:
-              - ValidateIsAdmin
+              - TokenRelay=
               - SetRequestHeader=Content-Type, application/prs.hal-forms+json
               - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
         - id: projectspresentation_route
@@ -153,7 +155,17 @@ spring:
             - Path=/clubs/well-known/{projectId}/{clubType}
             - Method=GET
           filters:
-            - ValidateIsAdmin=true,true
+            - TokenRelay
+            - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
+        - id: clubs_route--get-all-wellknown-club
+          uri: ${configs.api.clubs.baseUrl}
+          predicates:
+            - Path=/clubs/well-known/{projectId}
+            - Method=GET
+          filters:
+            - TokenRelay
+            - ValidateIsAdmin=true
+            - AddIsAdminHeader
             - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
         - id: clubs_route--get-administered-wellknown-club
           uri: ${configs.api.clubs.baseUrl}
@@ -161,8 +173,7 @@ spring:
             - Path=/clubs/well-known
             - Method=GET
           filters:
-            - ExtractAdminProjects
-            - AddQueryParamFromAttribute=${configs.constants.projectIdsAttribute},${configs.internalRoutes.projectsCoreParams.projectIdQueryParam}
+            - TokenRelay
             - RewritePath=/clubs(?<segment>.*), /clubs$\{segment}
         - id: clubs_route--patch-wellknown-club
           uri: ${configs.api.clubs.baseUrl}
@@ -170,8 +181,19 @@ spring:
             - Path=/clubs/well-known/{projectId}/{type}
             - Method=PATCH
           filters:
-            - ValidateIsAdmin=true
+            - TokenRelay
             - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
+        - id: clubs_route--register-wellknown-clubs
+          uri: ${configs.api.clubs.baseUrl}
+          predicates:
+            - Path=/clubs/well-known/{projectId}
+            - Method=POST
+          filters:
+            - ValidateIsAdmin
+            - AddIsAdminHeader
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
+            - TokenRelay
         # MEDIA
         - id: media_route
           uri: ${configs.api.media.baseUrl}
@@ -179,4 +201,3 @@ spring:
             - Path=/media/**
           filters:
             - RewritePath=/${configs.api.media.inBasePath}(?<segment>.*), /${configs.api.media.outBasePath}$\{segment}
-
