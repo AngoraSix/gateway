@@ -17,7 +17,7 @@
     <dependency>
       <artifactId>commons.core</artifactId>
       <groupId>com.angorasix</groupId>
-      <version>0.2.3</version>
+      <version>0.2.5</version>
     </dependency>
     <!--<dependency>
         <groupId>org.springframework.cloud</groupId>
