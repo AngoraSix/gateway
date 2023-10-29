@@ -59,6 +59,10 @@ public class ComposeFieldApiGatewayFilterFactory extends
               isMap ? Collections.singletonList((Map<String, Object>) input)
                   : (List<Map<String, Object>>) input;
 
+          if (castedInput.isEmpty()) {
+            return Mono.just(castedInput);
+          }
+
           //  extract base field values (usually ids) and join them in a "," separated string
           final String baseFieldValues = extractBaseFieldValues(config, castedInput);
 

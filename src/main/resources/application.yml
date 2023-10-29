@@ -3,12 +3,13 @@ server:
 
 logging:
   level:
-    "[org.springframework.cloud.gateway]": DEBUG
-    "[org.springframework.http.server.reactive]": DEBUG
-    "[org.springframework.web.reactive]": DEBUG
-    "[org.springframework.boot.autoconfigure.web]": DEBUG
-    "[reactor.netty]": DEBUG
-    "[org.springframework.security]": DEBUG
+    "[org.springframework.cloud.gateway]": ${A6_GATEWAY_LOGGING_LEVEL_GATEWAY:INFO}
+    "[org.springframework.http.server.reactive]": ${A6_GATEWAY_LOGGING_LEVEL_GATEWAY:INFO}
+    "[org.springframework.web.reactive]": ${A6_GATEWAY_LOGGING_LEVEL_GATEWAY:INFO}
+    "[org.springframework.boot.autoconfigure.web]": ${A6_GATEWAY_LOGGING_LEVEL_GATEWAY:INFO}
+    "[reactor.netty]": ${A6_GATEWAY_LOGGING_LEVEL_GATEWAY:INFO}
+    "[org.springframework.security]": ${A6_GATEWAY_LOGGING_LEVEL_GATEWAY:INFO}
+    "[com.angorasix]": ${A6_GATEWAY_LOGGING_LEVEL_ANGORASIX:INFO}
 
 configs:
   api:
@@ -55,6 +56,9 @@ configs:
     adminProjectIdsParam: adminProjectIds
     isProjectAdminAttribute: org.a6.gateway.infrastructure.config.constants.isProjectAdmin
     projectIdsAttribute: org.a6.gateway.infrastructure.config.constants.projectIds
+    googleCloudRunIdTokenAttribute: org.a6.gateway.infrastructure.config.constants.googleCloudRunIdToken
+    googleCloudRunIdTokenUrlPattern: http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=:audience
+    googleCloudRunAudiencePlaceholder: :audience
 
 spring:
   config:
@@ -66,7 +70,7 @@ spring:
       global-cors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: ${A6_GATEWAY_CORS_ALLOWEDORIGINS:http://localhost:90}
+            allowedOrigins: ${A6_GATEWAY_CORS_ALLOWEDORIGINS:}
             allowedMethods:
               - GET
       #      httpclient:
