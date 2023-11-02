@@ -16,6 +16,7 @@ jobs:
     uses: AngoraSix/infra/.github/workflows/action-push-gcp-maven.yml@main
     with:
       app: gateway
+      cloud-service: gateway
     secrets:
       wif-provider: ${{ secrets.WIF_PROVIDER }}
       wif-service-account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
