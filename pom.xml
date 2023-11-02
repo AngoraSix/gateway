@@ -2,7 +2,19 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.angorasix</groupId>
   <artifactId>gateway</artifactId>
+  <version>0.2.0</version>
+
+
+  <parent>
+    <artifactId>parent-pom-spring-java</artifactId>
+    <groupId>com.angorasix</groupId>
+    <version>0.2.1</version>
+  </parent>
+
   <dependencies>
     <dependency>
       <artifactId>spring-boot-starter-security</artifactId>
@@ -17,7 +29,7 @@
     <dependency>
       <artifactId>commons.core</artifactId>
       <groupId>com.angorasix</groupId>
-      <version>0.2.5</version>
+      <version>0.2.6</version>
     </dependency>
     <!--<dependency>
         <groupId>org.springframework.cloud</groupId>
@@ -66,16 +78,9 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
   <description>API Gateway Service</description>
-  <modelVersion>4.0.0</modelVersion>
-
   <name>gateway</name>
-
-  <parent>
-    <artifactId>parent-pom-spring-java</artifactId>
-    <groupId>com.angorasix</groupId>
-    <version>0.2.0</version>
-  </parent>
 
   <properties>
     <jacoco-coverage.class.line.min>0.00</jacoco-coverage.class.line.min>
