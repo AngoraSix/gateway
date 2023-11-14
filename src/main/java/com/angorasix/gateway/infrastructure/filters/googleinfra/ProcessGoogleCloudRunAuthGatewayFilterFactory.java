@@ -45,7 +45,8 @@ public class ProcessGoogleCloudRunAuthGatewayFilterFactory extends
 
   @Override
   public GatewayFilter apply(final Config config) {
-    return (exchange, chain) -> (config.isGoogleCloudRunAuthEnabled() ? processGoogleCloudRunAuth(config, exchange)
+    return (exchange, chain) -> (config.isGoogleCloudRunAuthEnabled() ? processGoogleCloudRunAuth(
+        config, exchange)
         : Mono.just(exchange)).flatMap(chain::filter);
   }
 
@@ -56,13 +57,15 @@ public class ProcessGoogleCloudRunAuthGatewayFilterFactory extends
       logger.debug(config.toString());
     }
     final String audience;
-    System.out.println(config.getAudience());
-    System.out.println(((Route) exchange.getAttribute(
-        ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR)).getUri().toString());
-    System.out.println(((Route) exchange.getAttribute(
-        ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR)).getUri().getScheme());
-    System.out.println(((Route) exchange.getAttribute(
-        ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR)).getUri().getHost());
+    if (logger.isInfoEnabled()) {
+      logger.info(config.getAudience());
+      logger.info(((Route) exchange.getAttribute(
+          ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR)).getUri().toString());
+      logger.info(((Route) exchange.getAttribute(
+          ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR)).getUri().getScheme());
+      logger.info(((Route) exchange.getAttribute(
+          ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR)).getUri().getHost());
+    }
     if (StringUtils.hasText(config.getAudience())) {
       audience = config.getAudience();
     } else {
