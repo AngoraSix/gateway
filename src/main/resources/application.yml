@@ -56,9 +56,9 @@ configs:
     adminProjectIdsParam: adminProjectIds
     isProjectAdminAttribute: org.a6.gateway.infrastructure.config.constants.isProjectAdmin
     projectIdsAttribute: org.a6.gateway.infrastructure.config.constants.projectIds
-    googleCloudRunIdTokenAttribute: org.a6.gateway.infrastructure.config.constants.googleCloudRunIdToken
-    googleCloudRunIdTokenUrlPattern: http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=:audience
-    googleCloudRunAudiencePlaceholder: :audience
+    googleTokenAttribute: org.a6.gateway.infrastructure.config.constants.googleCloudRunIdToken
+    googleTokenUrlPattern: http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=:audience
+    googleAudiencePlaceholder: :audience
 
 spring:
   config:
