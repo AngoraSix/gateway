@@ -6,13 +6,13 @@
 
   <groupId>com.angorasix</groupId>
   <artifactId>gateway</artifactId>
-  <version>0.2.1</version>
+  <version>0.2.2</version>
 
 
   <parent>
     <artifactId>parent-pom-spring-java</artifactId>
     <groupId>com.angorasix</groupId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
   </parent>
 
   <dependencies>
