@@ -169,6 +169,8 @@ spring:
             - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
             - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
             - ValidateIsAdminGet=true,true
+            - AddIsAdminHeader
+            - TokenRelay
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         - id: projectsmanagementcore_route--get-single
           uri: ${configs.api.projects.management.baseUrl}
