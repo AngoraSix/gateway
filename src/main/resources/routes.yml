@@ -190,7 +190,7 @@ spring:
             - Path=/projects/{projectId}/management/**
             - Method=POST
           filters:
-            - RewritePath=/${configs.api.projects.management.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.management.outBasePath}$\{segment}
+            - RewritePath=/${configs.api.projects.management.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.management.outProjectBasedPath}$\{segment}
             - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
             - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
             - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
