@@ -47,9 +47,9 @@ spring:
             - Method=PUT
           filters:
             - RewritePath=/${configs.api.projects.core.inBasePath}(?<segment>.*), /${configs.api.projects.core.outBasePath}$\{segment}
-            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false} # to be able to communicate with the downstream service
             - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
-            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl} # to be able to communicate with the projects core service (isAdmin)
             - ValidateIsAdmin=false,false,id
             - TokenRelay=
             - SetRequestHeader=Content-Type, application/prs.hal-forms+json
@@ -124,11 +124,11 @@ spring:
             - Path=/projects/{projectId}/presentations/**
             - Method=POST
           filters:
-              - SetRequestHeader=Content-Type, application/prs.hal-forms+json
-              - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
-              - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
-              - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
-              - TokenRelay=
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - TokenRelay=
         - id: projectspresentation_route
           uri: ${configs.api.projects.presentation.baseUrl}
           predicates:
@@ -169,6 +169,8 @@ spring:
             - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
             - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
             - ValidateIsAdminGet=true,true
+            - AddIsAdminHeader
+            - TokenRelay
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         - id: projectsmanagementcore_route--get-single
           uri: ${configs.api.projects.management.baseUrl}
@@ -182,17 +184,30 @@ spring:
             - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
             - ValidateIsAdminGet=true,true
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
+        - id: projectsmanagementcore_route--post
+          uri: ${configs.api.projects.management.baseUrl}
+          predicates:
+            - Path=/projects/{projectId}/management/**
+            - Method=POST
+          filters:
+            - RewritePath=/${configs.api.projects.management.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.management.outProjectBasedPath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
+            - ValidateIsAdmin
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - TokenRelay
         # CLUBS
-#        - id: clubs_route--get-wellknown-club
-#          uri: ${configs.api.clubs.baseUrl}
-#          predicates:
-#            - Path=/clubs/well-known/{projectId}/{clubType}
-#            - Method=GET
-#          filters:
-#            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
-#            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
-#            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
-#            - TokenRelay=
+        #        - id: clubs_route--get-wellknown-club
+        #          uri: ${configs.api.clubs.baseUrl}
+        #          predicates:
+        #            - Path=/clubs/well-known/{projectId}/{clubType}
+        #            - Method=GET
+        #          filters:
+        #            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
+        #            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+        #            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+        #            - TokenRelay=
         - id: clubs_route--get-all-wellknown-club
           uri: ${configs.api.clubs.baseUrl}
           predicates:
