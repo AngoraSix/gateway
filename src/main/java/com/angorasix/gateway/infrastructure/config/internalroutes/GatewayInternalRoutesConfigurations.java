@@ -11,6 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "configs.internal-routes")
 public record GatewayInternalRoutesConfigurations(ProjectsCoreInternalRoutes projectsCore,
-                                                  ProjectsCoreInternalParams projectsCoreParams) {
+                                                  ProjectsCoreInternalParams projectsCoreParams,
+                                                  EventsInternalRoutes events) {
 
 }
