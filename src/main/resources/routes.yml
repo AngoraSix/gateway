@@ -241,6 +241,16 @@ spring:
             - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
             - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
             - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - A6EventPrepare
+            - name: A6EventTrigger
+              args:
+                subjectType: club
+                subjectIdUriTemplateKeys: projectId+type
+                defaultSubjectEvent: modifyMember
+                patchToSubjectEventMap:
+                  members:
+                    remove: removeMember
+                    add: addMember
             - TokenRelay=
         - id: clubs_route--register-wellknown-clubs
           uri: ${configs.api.clubs.baseUrl}

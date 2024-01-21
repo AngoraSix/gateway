@@ -41,6 +41,10 @@ configs:
       baseUrl: ${A6_GATEWAY_CLUBS_URI:http://localhost:9085}
       inBasePath: ${A6_GATEWAY_CLUBS_INBASEPATH:clubs}
       outBasePath: ${A6_GATEWAY_CLUBS_OUTBASEPATH:clubs}
+    events:
+      baseUrl: ${A6_GATEWAY_EVENTS_URI:http://localhost:9087}
+      inBasePath: ${A6_GATEWAY_EVENTS_INBASEPATH:events}
+      outBasePath: ${A6_GATEWAY_EVENTS_OUTBASEPATH:events}
   internalRoutes:
     projectsCore:
       isAdminEndpoint: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCORE_ISADMIN::projectId/isAdmin}
@@ -50,6 +54,8 @@ configs:
       isAdminResponseField: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCOREPARAMS_ISADMINRESPONSEFIELD:isAdmin}
       projectIdResponseField: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCOREPARAMS_PROJECTIDRESPONSEFIELD:id}
       projectIdQueryParam: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCOREPARAMS_PROJECTIDQUERYPARAM:projectId}
+    events:
+      publishA6Event: ${A6_GATEWAY_INTERNALROUTES_EVENTS_A6_RESOURCE:a6-resource}
   constants:
     projectIdParam: projectId
     projectIdPlaceholder: :projectId
