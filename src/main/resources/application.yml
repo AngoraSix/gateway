@@ -45,6 +45,10 @@ configs:
       baseUrl: ${A6_GATEWAY_EVENTS_URI:http://localhost:9087}
       inBasePath: ${A6_GATEWAY_EVENTS_INBASEPATH:events}
       outBasePath: ${A6_GATEWAY_EVENTS_OUTBASEPATH:events}
+    notifications:
+      baseUrl: ${A6_GATEWAY_NOTIFICATIONS_URI:http://localhost:9088}
+      inBasePath: ${A6_GATEWAY_NOTIFICATIONS_INBASEPATH:notifications}
+      outBasePath: ${A6_GATEWAY_NOTIFICATIONS_OUTBASEPATH:notifications}
   internalRoutes:
     projectsCore:
       isAdminEndpoint: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCORE_ISADMIN::projectId/isAdmin}
