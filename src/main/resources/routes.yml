@@ -277,6 +277,14 @@ spring:
             - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
             - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
             - TokenRelay=
+        - id: notifications_patch_route
+          uri: ${configs.api.notifications.baseUrl}
+          predicates:
+            - Path=/notifications/**
+            - Method=PATCH
+          filters:
+            - RewritePath=/${configs.api.notifications.inBasePath}(?<segment>.*), /${configs.api.notifications.outBasePath}$\{segment}
+            - TokenRelay=
         # MEDIA
         - id: media_route
           uri: ${configs.api.media.baseUrl}
