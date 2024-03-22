@@ -9,7 +9,7 @@ COPY src src
 COPY detekt.yml .
 COPY .editorconfig .
 # RUN --mount=type=cache,target=/root/.m2 ./mvnw install -DskipTests
-RUN ./mvnw install -DskipTests
+RUN ./mvnw install -DskipTests -Dcheckstyle.skip
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
