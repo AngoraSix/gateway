@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,6 +54,8 @@ public class ValidateIsAdminGetGatewayFilterFactory extends
 
     private final transient ConfigConstants configConstants;
 
+    private final transient ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter;
+
     /**
      * Main constructor with required params.
      *
@@ -60,23 +64,25 @@ public class ValidateIsAdminGetGatewayFilterFactory extends
      */
     public ValidateIsAdminGetGatewayFilterFactory(
             final GatewayApiConfigurations apiConfigs,
+            final ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter,
             final ConfigConstants configConstants,
             final GatewayInternalRoutesConfigurations internalRoutesConfigs) {
         super(Config.class);
         this.apiConfigs = apiConfigs;
         this.configConstants = configConstants;
         this.internalRoutesConfigs = internalRoutesConfigs;
+        this.modifyRequestBodyFilter = modifyRequestBodyFilter;
     }
 
     @Override
     public GatewayFilter apply(final Config config) {
-        return (filterExchange, chain) -> ReactiveSecurityContextHolder.getContext()
+        return config.forGetRequest ? (filterExchange, chain) -> ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
                 .map(JwtAuthenticationToken.class::cast)
                 .flatMap(
                         auth -> {
                             if (logger.isDebugEnabled()) {
-                                logger.debug("Validating if is Admin...");
+                                logger.debug("Validating if is Admin (without modifying body)...");
                                 logger.debug(config.toString());
                             }
                             final String associatedEntityId = obtainAssociatedEntityId(config, filterExchange);
@@ -100,20 +106,51 @@ public class ValidateIsAdminGetGatewayFilterFactory extends
                                                             .orElse("")))
                                     .exchangeToMono(response -> response.bodyToMono(IsAdminDto.class))
                                     .switchIfEmpty(Mono.just(new IsAdminDto(false)))
-                                    .map(isAdminResponse -> {;
-                                        if (!config.isNonAdminRequestAllowed() && !isAdminResponse.isAdmin()) {
-                                            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                                                    "Only admin can proceed");
-                                        }
-                                        if (logger.isDebugEnabled()) {
-                                            logger.debug("isAdmin result: %s".formatted(isAdminResponse.isAdmin()));
-                                        }
-                                        filterExchange.getAttributes()
-                                                .put(configConstants.isAssociatedEntityAdminAttribute(),
-                                                        isAdminResponse.isAdmin());
+                                    .map(isAdminResponse -> {
+                                        ;
+                                        processIsAdminResponse(config, filterExchange, isAdminResponse);
                                         return filterExchange;
                                     });
-                        }).flatMap(chain::filter);
+                        }).flatMap(chain::filter)
+                :
+                modifyRequestBodyFilter.apply((c) -> c.setRewriteFunction(Object.class, Object.class,
+                        (filterExchange, input) -> ReactiveSecurityContextHolder.getContext()
+                                .map(SecurityContext::getAuthentication)
+                                .map(JwtAuthenticationToken.class::cast)
+                                .flatMap(
+                                        auth -> {
+                                            if (logger.isDebugEnabled()) {
+                                                logger.debug("Validating if is Admin...");
+                                                logger.debug(config.toString());
+                                            }
+                                            final String associatedEntityId = obtainAssociatedEntityId(config, filterExchange);
+                                            final String serviceBaseUrl = obtainServiceBaseUrl(config, apiConfigs);
+                                            final String serviceOutBaseUrl = obtainServiceOutBaseUrl(config, apiConfigs);
+                                            final String resolvedAdminEndpoint = obtainAdminEndpoint(config, associatedEntityId);
+                                            // Request to a path managed by the Gateway
+                                            final WebClient client = WebClient.create();
+                                            return client.get().uri(
+                                                            UriComponentsBuilder.fromUriString(serviceBaseUrl)
+                                                                    .pathSegment(serviceOutBaseUrl, resolvedAdminEndpoint)
+                                                                    .build().toUri())
+                                                    .header(HttpHeaders.AUTHORIZATION,
+                                                            "Bearer %s".formatted(auth.getToken().getTokenValue()))
+                                                    .header(config.getGoogleCloudRunAuthHeader(),
+                                                            "Bearer %s".formatted(
+                                                                    Optional.ofNullable(filterExchange.getAttribute("%s-%s".formatted(
+                                                                                    configConstants.googleTokenAttribute(),
+                                                                                    apiConfigs.projects().core().baseUrl())))
+                                                                            .map(Object::toString)
+                                                                            .orElse("")))
+                                                    .exchangeToMono(response -> response.bodyToMono(IsAdminDto.class))
+                                                    .switchIfEmpty(Mono.just(new IsAdminDto(false)))
+                                                    .map(isAdminResponse -> {
+                                                        processIsAdminResponse(config, filterExchange, isAdminResponse);
+                                                        return Optional.ofNullable(input).orElse(Collections.emptyMap());
+                                                    });
+                                        }).switchIfEmpty(config.isAnonymousRequestAllowed() ? Mono.justOrEmpty(input)
+                                        : Mono.error(new IllegalArgumentException(
+                                        "Validate Project Admin is not an optional step for this endpoint")))));
     }
 
     private String obtainAssociatedEntityId(final Config config, final ServerWebExchange exchange) {
@@ -144,9 +181,22 @@ public class ValidateIsAdminGetGatewayFilterFactory extends
                 .replace(configConstants.projectIdPlaceholder(), associatedEntityId);
     }
 
+    private void processIsAdminResponse(Config config, ServerWebExchange filterExchange, IsAdminDto isAdminResponse) {
+        if (!config.isNonAdminRequestAllowed() && !isAdminResponse.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Only admin can proceed");
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("isAdmin result: %s".formatted(isAdminResponse.isAdmin()));
+        }
+        filterExchange.getAttributes()
+                .put(configConstants.isAssociatedEntityAdminAttribute(),
+                        isAdminResponse.isAdmin());
+    }
+
     @Override
     public List<String> shortcutFieldOrder() {
-        return Arrays.asList("nonAdminRequestAllowed", "forProjectManagement", "anonymousRequestAllowed",
+        return Arrays.asList("forGetRequest", "nonAdminRequestAllowed", "forProjectManagement", "anonymousRequestAllowed",
                 "googleCloudRunAuthHeader");
     }
 
@@ -157,6 +207,8 @@ public class ValidateIsAdminGetGatewayFilterFactory extends
      */
     public static class Config {
 
+
+        private boolean forGetRequest;
         private boolean nonAdminRequestAllowed;
         private boolean forProjectManagement;
         private boolean anonymousRequestAllowed;
@@ -192,8 +244,16 @@ public class ValidateIsAdminGetGatewayFilterFactory extends
             return forProjectManagement;
         }
 
-        public void setForProjectManagement(boolean forProjectManagement) {
-            this.forProjectManagement = forProjectManagement;
+        public void setForProjectManagement(String associatedEntity) {
+            this.forProjectManagement = associatedEntity.equals("projectManagement");
+        }
+
+        public boolean isForGetRequest() {
+            return forGetRequest;
+        }
+
+        public void setForGetRequest(String method) {
+            this.forGetRequest = method.equals("GET");
         }
     }
 }
