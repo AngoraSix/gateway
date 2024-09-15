@@ -29,7 +29,7 @@
     <dependency>
       <artifactId>commons.core</artifactId>
       <groupId>com.angorasix</groupId>
-      <version>0.2.7</version>
+      <version>0.2.10-SNAPSHOT</version>
     </dependency>
     <!--<dependency>
         <groupId>org.springframework.cloud</groupId>

@@ -1,5 +1,5 @@
 server:
-  port: ${A6_GATEWAY_PORT:9080}
+  port: ${A6_GATEWAY_PORT:10000}
 
 logging:
   level:
@@ -14,59 +14,69 @@ logging:
 configs:
   api:
     contributors:
-      baseUrl: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:9081}
+      baseUrl: ${A6_GATEWAY_CONTRIBUTORS_URI:http://localhost:10100}
       inBasePath: ${A6_GATEWAY_CONTRIBUTORS_INBASEPATH:contributors}
       outBasePath: ${A6_GATEWAY_CONTRIBUTORS_OUTBASEPATH:contributors}
     projects:
       core:
-        baseUrl: ${A6_GATEWAY_PROJECTS_CORE_URI:http://localhost:9082}
+        baseUrl: ${A6_GATEWAY_PROJECTS_CORE_URI:http://localhost:10200}
         inBasePath: ${A6_GATEWAY_PROJECTS_CORE_INBASEPATH:projects/core}
         outBasePath: ${A6_GATEWAY_PROJECTS_CORE_OUTBASEPATH:projects-core}
       presentation:
-        baseUrl: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:9083}
+        baseUrl: ${A6_GATEWAY_PROJECTS_PRESENTATION_URI:http://localhost:10201}
         inBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INBASEPATH:projects/presentations}
         inProjectBasedPath: ${A6_GATEWAY_PROJECTS_PRESENTATION_INPROJECTBASEDPATH:projects/(?<projectId>.*?)/presentations}
         outBasePath: ${A6_GATEWAY_PROJECTS_PRESENTATION_OUTBASEPATH:projects-presentation}
-      management:
-        baseUrl: ${A6_GATEWAY_PROJECTS_MANAGEMENT_URI:http://localhost:9086}
+    managements:
+      core:
+        baseUrl: ${A6_GATEWAY_PROJECTS_MANAGEMENT_URI:http://localhost:10300}
         inBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INBASEPATH:projects/management}
         inProjectBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INPROJECTBASEDPATH:projects/(?<projectId>.*?)/management}
-        outProjectBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_OUTPROJECTBASEDPATH:management-core/project/$\{projectId}}
-        outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_OUTBASEPATH:management-core}
+        outProjectBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_OUTPROJECTBASEDPATH:managements-core/project/$\{projectId}}
+        outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_OUTBASEPATH:managements-core}
+      integrations:
+        baseUrl: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INTEGRATION_URI:http://localhost:10302}
+        inBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INTEGRATION_INBASEPATH:management/integrations}
+        inManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INTEGRATION_INMANAGEMENTBASEDPATH:management/integrations/project-management/(?<projectManagementId>.*?)}
+        outManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INTEGRATION_OUTMANAGEMENTBASEDPATH:managements-integration/project-management/$\{projectManagementId}}
+        outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INTEGRATION_OUTBASEPATH:managements-integration}
+
     media:
-      baseUrl: ${A6_GATEWAY_MEDIA_URI:http://localhost:9084}
+      baseUrl: ${A6_GATEWAY_MEDIA_URI:http://localhost:10001}
       inBasePath: ${A6_GATEWAY_MEDIA_INBASEPATH:media}
       outBasePath: ${A6_GATEWAY_MEDIA_OUTBASEPATH:}
     clubs:
-      baseUrl: ${A6_GATEWAY_CLUBS_URI:http://localhost:9085}
+      baseUrl: ${A6_GATEWAY_CLUBS_URI:http://localhost:10900}
       inBasePath: ${A6_GATEWAY_CLUBS_INBASEPATH:clubs}
       outBasePath: ${A6_GATEWAY_CLUBS_OUTBASEPATH:clubs}
     events:
-      baseUrl: ${A6_GATEWAY_EVENTS_URI:http://localhost:9087}
+      baseUrl: ${A6_GATEWAY_EVENTS_URI:http://localhost:10101}
       inBasePath: ${A6_GATEWAY_EVENTS_INBASEPATH:events}
       outBasePath: ${A6_GATEWAY_EVENTS_OUTBASEPATH:events}
     notifications:
-      baseUrl: ${A6_GATEWAY_NOTIFICATIONS_URI:http://localhost:9088}
+      baseUrl: ${A6_GATEWAY_NOTIFICATIONS_URI:http://localhost:10102}
       inBasePath: ${A6_GATEWAY_NOTIFICATIONS_INBASEPATH:notifications}
       outBasePath: ${A6_GATEWAY_NOTIFICATIONS_OUTBASEPATH:notifications}
   internalRoutes:
     projectsCore:
       isAdminEndpoint: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCORE_ISADMIN::projectId/isAdmin}
       projectsEndpoint: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCORE_PROJECTS:}
+    managementsCore:
+      isAdminEndpoint: ${A6_GATEWAY_INTERNALROUTES_MANAGEMENTSCORE_ISADMIN::projectManagementId/isAdmin}
     projectsCoreParams:
       adminIdQueryParam: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCOREPARAMS_ADMINIDQUERYPARAM:adminId}
-      isAdminResponseField: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCOREPARAMS_ISADMINRESPONSEFIELD:isAdmin}
       projectIdResponseField: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCOREPARAMS_PROJECTIDRESPONSEFIELD:id}
       projectIdQueryParam: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCOREPARAMS_PROJECTIDQUERYPARAM:projectId}
     events:
       publishA6Event: ${A6_GATEWAY_INTERNALROUTES_EVENTS_A6_RESOURCE:a6-resource}
   constants:
     projectIdParam: projectId
+    projectManagementIdParam: projectManagementId
     projectIdPlaceholder: :projectId
     adminProjectIdsParam: adminProjectIds
-    isProjectAdminAttribute: org.a6.gateway.infrastructure.config.constants.isProjectAdmin
-    projectIdsAttribute: org.a6.gateway.infrastructure.config.constants.projectIds
-    googleTokenAttribute: org.a6.gateway.infrastructure.config.constants.googleCloudRunIdToken
+    isAssociatedEntityAdminAttribute: com.angorasix.gateway.infrastructure.config.constants.isProjectAdmin
+    projectIdsAttribute: com.angorasix.gateway.infrastructure.config.constants.projectIds
+    googleTokenAttribute: com.angorasix.gateway.infrastructure.config.constants.googleCloudRunIdToken
     googleTokenUrlPattern: http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=:audience
     googleAudiencePlaceholder: :audience
 

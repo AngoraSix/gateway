@@ -34,10 +34,10 @@ public class AddIsAdminHeaderGatewayFilterFactory extends
     return (exchange, chain) -> chain.filter(
         exchange.getAttributes()
             .containsKey(
-                configConstants.isProjectAdminAttribute())
+                configConstants.isAssociatedEntityAdminAttribute())
             ? exchange.mutate()
             .request(req -> req.header(AngoraSixInfrastructure.REQUEST_IS_ADMIN_HINT_HEADER,
-                exchange.getAttribute(configConstants.isProjectAdminAttribute()).toString()))
+                exchange.getAttribute(configConstants.isAssociatedEntityAdminAttribute()).toString()))
             .build() : exchange);
   }
 

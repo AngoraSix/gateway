@@ -133,7 +133,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
           "Only Project admin can proceed");
     }
     filterExchange.getAttributes()
-        .put(configConstants.isProjectAdminAttribute(),
+        .put(configConstants.isAssociatedEntityAdminAttribute(),
             isAdmin);
   }
 
