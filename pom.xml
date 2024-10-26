@@ -12,7 +12,7 @@
   <parent>
     <artifactId>parent-pom-spring-java</artifactId>
     <groupId>com.angorasix</groupId>
-    <version>0.2.3-SNAPSHOT</version>
+    <version>0.2.3</version>
   </parent>
 
   <dependencies>
