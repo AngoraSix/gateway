@@ -75,12 +75,12 @@ public class ValidateIsAdminGatewayFilterFactory extends
 
   @Override
   public GatewayFilter apply(final Config config) {
-    return config.forGetRequest
+    return config.isForGetRequest()
         ? (filterExchange, chain) -> checkAdminWithoutTemperingBody(config, filterExchange, chain)
-        : checkAdminAccesingBody(config);
+        : checkAdminAccessingBody(config);
   }
 
-  private GatewayFilter checkAdminAccesingBody(final Config config) {
+  private GatewayFilter checkAdminAccessingBody(final Config config) {
     return modifyRequestBodyFilter.apply((c) -> c.setRewriteFunction(Object.class, Object.class,
         (filterExchange, input) -> ReactiveSecurityContextHolder.getContext()
             .map(SecurityContext::getAuthentication)
@@ -130,6 +130,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
   private @NotNull Mono<Void> checkAdminWithoutTemperingBody(final Config config,
       final ServerWebExchange filterExchange,
       final GatewayFilterChain chain) {
+
     return ReactiveSecurityContextHolder.getContext()
         .map(SecurityContext::getAuthentication)
         .map(JwtAuthenticationToken.class::cast)
@@ -212,12 +213,15 @@ public class ValidateIsAdminGatewayFilterFactory extends
   }
 
   private String obtainAdminEndpoint(final Config config, final String associatedEntityId) {
+    final String associatedEntityIdParamPlaceholder =
+        config.isForProjectManagement() ? configConstants.projectManagementIdPlaceholder()
+            : configConstants.projectIdPlaceholder();
     return config.isForProjectManagement() ? internalRoutesConfigs.managementsCore()
         .isAdminEndpoint()
-        .replace(configConstants.projectManagementIdParam(), associatedEntityId)
+        .replace(associatedEntityIdParamPlaceholder, associatedEntityId)
         : internalRoutesConfigs.projectsCore()
             .isAdminEndpoint()
-            .replace(configConstants.projectIdPlaceholder(), associatedEntityId);
+            .replace(associatedEntityIdParamPlaceholder, associatedEntityId);
   }
 
   private void processIsAdminResponse(final Config config, final ServerWebExchange filterExchange,

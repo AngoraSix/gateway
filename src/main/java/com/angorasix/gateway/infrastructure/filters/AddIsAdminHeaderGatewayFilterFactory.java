@@ -37,7 +37,7 @@ public class AddIsAdminHeaderGatewayFilterFactory extends
                 configConstants.isAdminAttribute())
             ? exchange.mutate()
             .request(req -> req.header(AngoraSixInfrastructure.REQUEST_IS_ADMIN_HINT_HEADER,
-                exchange.getAttribute(configConstants.isAdminAttribute())))
+                exchange.getAttribute(configConstants.isAdminAttribute()).toString()))
             .build() : exchange);
   }
 

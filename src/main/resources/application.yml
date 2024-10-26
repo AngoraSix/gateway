@@ -72,9 +72,10 @@ configs:
   constants:
     projectIdParam: projectId
     projectManagementIdParam: projectManagementId
+    projectManagementIdPlaceholder: :projectManagementId
     projectIdPlaceholder: :projectId
     adminProjectIdsParam: adminProjectIds
-    isAssociatedEntityAdminAttribute: com.angorasix.gateway.infrastructure.config.constants.isProjectAdmin
+    isAdminAttribute: com.angorasix.gateway.infrastructure.config.constants.isProjectAdmin
     projectIdsAttribute: com.angorasix.gateway.infrastructure.config.constants.projectIds
     googleTokenAttribute: com.angorasix.gateway.infrastructure.config.constants.googleCloudRunIdToken
     googleTokenUrlPattern: http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=:audience

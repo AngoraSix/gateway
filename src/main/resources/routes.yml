@@ -172,18 +172,6 @@ spring:
             - AddIsAdminHeader
             - TokenRelay
             - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
-        - id: projectsmanagementcore_route--get-single-by-projectid
-          uri: ${configs.api.managements.core.baseUrl}
-          predicates:
-            - Path=/projects/{projectId}/management/**
-            - Method=GET
-          filters:
-            - RewritePath=/${configs.api.managements.core.inProjectBasedPath}(?<segment>.*), /${configs.api.managements.core.outBasePath}$\{segment}
-            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
-            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
-            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
-            - ValidateIsAdmin=GET,true,project,true
-            - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
         - id: projectsmanagementcore_route--post
           uri: ${configs.api.managements.core.baseUrl}
           predicates:
@@ -209,6 +197,31 @@ spring:
             - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
             - ValidateIsAdmin=GET,true,projectManagement
             - AddIsAdminHeader
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - TokenRelay
+        - id: managementintegrations_route--get-list-by-managementId
+          uri: ${configs.api.managements.integrations.baseUrl}
+          predicates:
+            - Path=/management/integrations/project-management/{projectManagementId}/**
+            - Method=POST
+          filters:
+            - RewritePath=/${configs.api.managements.integrations.inManagementBasedPath}(?<segment>.*), /${configs.api.managements.integrations.outManagementBasedPath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ValidateIsAdmin=managementId,false,projectManagement
+            - AddIsAdminHeader
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - TokenRelay
+        - id: managementintegrations_route--patch
+          uri: ${configs.api.managements.integrations.baseUrl}
+          predicates:
+            - Path=/management/integrations/**
+            - Method=PATCH
+          filters:
+            - RewritePath=/${configs.api.managements.integrations.inBasePath}(?<segment>.*), /${configs.api.managements.integrations.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - TokenRelay=
         # CLUBS
         #        - id: clubs_route--get-wellknown-club
         #          uri: ${configs.api.clubs.baseUrl}
