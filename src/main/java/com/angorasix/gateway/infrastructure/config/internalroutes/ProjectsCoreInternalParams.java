@@ -7,7 +7,7 @@ package com.angorasix.gateway.infrastructure.config.internalroutes;
  *
  * @author rozagerardo
  */
-public record ProjectsCoreInternalParams(String adminIdQueryParam, String isAdminResponseField,
+public record ProjectsCoreInternalParams(String adminIdQueryParam,
                                          String projectIdResponseField) {
 
 }

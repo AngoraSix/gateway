@@ -1,6 +1,7 @@
 package com.angorasix.gateway.infrastructure.filters;
 
 import com.angorasix.commons.infrastructure.constants.AngoraSixInfrastructure;
+import com.angorasix.commons.presentation.dto.IsAdminDto;
 import com.angorasix.gateway.infrastructure.config.api.GatewayApiConfigurations;
 import com.angorasix.gateway.infrastructure.config.constants.ConfigConstants;
 import com.angorasix.gateway.infrastructure.config.internalroutes.GatewayInternalRoutesConfigurations;
@@ -9,13 +10,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -29,8 +31,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 /**
- * <p>
- * Filter to validate the user is Admin of the manipulated Resource.
+ * <p>Filter to validate the user is Admin of the manipulated Resource, for GET requests (avoiding
+ * messing up the request body, which can generate issues depending on the underlying
+ * infrastructure).
  * </p>
  *
  * @author rozagerardo
@@ -39,12 +42,10 @@ import reactor.core.publisher.Mono;
 public class ValidateIsAdminGatewayFilterFactory extends
     AbstractGatewayFilterFactory<ValidateIsAdminGatewayFilterFactory.Config> {
 
+  private static final String BEARER_TOKEN_PLACEHOLDER = "Bearer %s";
+
   /* default */ final Logger logger = LoggerFactory.getLogger(
       ValidateIsAdminGatewayFilterFactory.class);
-
-  private final transient ParameterizedTypeReference<Map<String, Object>> jsonType =
-      new ParameterizedTypeReference<>() {
-      };
 
   private final transient GatewayInternalRoutesConfigurations internalRoutesConfigs;
 
@@ -57,11 +58,11 @@ public class ValidateIsAdminGatewayFilterFactory extends
   /**
    * Main constructor with required params.
    *
-   * @param modifyRequestBodyFilter delegating Modify Request Body Filter
-   * @param apiConfigs              API configs
-   * @param internalRoutesConfigs   internal Routes configs to route composing call
+   * @param apiConfigs            API configs
+   * @param internalRoutesConfigs internal Routes configs to route composing call
    */
-  public ValidateIsAdminGatewayFilterFactory(final GatewayApiConfigurations apiConfigs,
+  public ValidateIsAdminGatewayFilterFactory(
+      final GatewayApiConfigurations apiConfigs,
       final ModifyRequestBodyGatewayFilterFactory modifyRequestBodyFilter,
       final ConfigConstants configConstants,
       final GatewayInternalRoutesConfigurations internalRoutesConfigs) {
@@ -74,6 +75,12 @@ public class ValidateIsAdminGatewayFilterFactory extends
 
   @Override
   public GatewayFilter apply(final Config config) {
+    return config.isForGetRequest()
+        ? (filterExchange, chain) -> checkAdminWithoutTemperingBody(config, filterExchange, chain)
+        : checkAdminAccessingBody(config);
+  }
+
+  private GatewayFilter checkAdminAccessingBody(final Config config) {
     return modifyRequestBodyFilter.apply((c) -> c.setRewriteFunction(Object.class, Object.class,
         (filterExchange, input) -> ReactiveSecurityContextHolder.getContext()
             .map(SecurityContext::getAuthentication)
@@ -84,84 +91,158 @@ public class ValidateIsAdminGatewayFilterFactory extends
                     logger.debug("Validating if is Admin...");
                     logger.debug(config.toString());
                   }
-                  final String projectId = obtainProjectId(filterExchange, input,
-                      config.getProjectIdBodyField());
-                  final String resolvedAdminEndpoint = internalRoutesConfigs.projectsCore()
-                      .isAdminEndpoint()
-                      .replace(configConstants.projectIdPlaceholder(), projectId);
+                  final String associatedEntityId = obtainAssociatedEntityId(config,
+                      filterExchange, input, config.projectIdBodyField);
+                  final String serviceBaseUrl = obtainServiceBaseUrl(config, apiConfigs);
+                  final String serviceOutBaseUrl = obtainServiceOutBaseUrl(config,
+                      apiConfigs);
+                  final String resolvedAdminEndpoint = obtainAdminEndpoint(config,
+                      associatedEntityId);
                   // Request to a path managed by the Gateway
                   final WebClient client = WebClient.create();
                   return client.get().uri(
-                          UriComponentsBuilder.fromUriString(
-                                  apiConfigs.projects().core().baseUrl())
-                              .pathSegment(apiConfigs.projects().core().outBasePath(),
-                                  resolvedAdminEndpoint).build().toUri())
+                          UriComponentsBuilder.fromUriString(serviceBaseUrl)
+                              .pathSegment(serviceOutBaseUrl, resolvedAdminEndpoint)
+                              .build().toUri())
                       .header(HttpHeaders.AUTHORIZATION,
-                          "Bearer %s".formatted(auth.getToken().getTokenValue()))
+                          BEARER_TOKEN_PLACEHOLDER.formatted(
+                              auth.getToken().getTokenValue()))
                       .header(config.getGoogleCloudRunAuthHeader(),
-                          "Bearer %s".formatted(
-                              Optional.ofNullable(filterExchange.getAttribute("%s-%s".formatted(
-                                      configConstants.googleTokenAttribute(),
-                                      apiConfigs.projects().core().baseUrl())))
+                          BEARER_TOKEN_PLACEHOLDER.formatted(
+                              Optional.ofNullable(
+                                      filterExchange.getAttribute("%s-%s".formatted(
+                                          configConstants.googleTokenAttribute(),
+                                          apiConfigs.projects().core().baseUrl())))
                                   .map(Object::toString)
                                   .orElse("")))
-                      .exchangeToMono(response -> response.bodyToMono(jsonType))
-                      .switchIfEmpty(Mono.just(Collections.emptyMap()))
+                      .exchangeToMono(response -> response.bodyToMono(IsAdminDto.class))
+                      .switchIfEmpty(Mono.just(new IsAdminDto(false)))
                       .map(isAdminResponse -> {
                         processIsAdminResponse(config, filterExchange, isAdminResponse);
                         return Optional.ofNullable(input).orElse(Collections.emptyMap());
                       });
-                }).switchIfEmpty(config.isAnonymousRequestAllowed() ? Mono.justOrEmpty(input)
+                })
+            .switchIfEmpty(config.isAnonymousRequestAllowed() ? Mono.justOrEmpty(input)
                 : Mono.error(new IllegalArgumentException(
                     "Validate Project Admin is not an optional step for this endpoint")))));
   }
 
-  private void processIsAdminResponse(final Config config, final ServerWebExchange filterExchange,
-      final Map<String, Object> isAdminResponse) {
-    final boolean isAdmin =
-        isAdminResponse.containsKey(
-            internalRoutesConfigs.projectsCoreParams()
-                .isAdminResponseField())
-            && isAdminResponse.get(
-            internalRoutesConfigs.projectsCoreParams()
-                .isAdminResponseField()).equals(true);
-    if (logger.isDebugEnabled()) {
-      logger.debug("isAdmin result: %s".formatted(isAdmin));
-    }
-    if (!config.isNonAdminRequestAllowed() && !isAdmin) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-          "Only Project admin can proceed");
-    }
-    filterExchange.getAttributes()
-        .put(configConstants.isProjectAdminAttribute(),
-            isAdmin);
+  private @NotNull Mono<Void> checkAdminWithoutTemperingBody(final Config config,
+      final ServerWebExchange filterExchange,
+      final GatewayFilterChain chain) {
+
+    return ReactiveSecurityContextHolder.getContext()
+        .map(SecurityContext::getAuthentication)
+        .map(JwtAuthenticationToken.class::cast)
+        .flatMap(
+            auth -> {
+              if (logger.isDebugEnabled()) {
+                logger.debug("Validating if is Admin (without modifying body)...");
+                logger.debug(config.toString());
+              }
+              final String associatedEntityId = obtainAssociatedEntityId(config, filterExchange,
+                  null, null);
+              final String serviceBaseUrl = obtainServiceBaseUrl(config, apiConfigs);
+              final String serviceOutBaseUrl = obtainServiceOutBaseUrl(config, apiConfigs);
+              final String resolvedAdminEndpoint = obtainAdminEndpoint(config, associatedEntityId);
+              // Request to a path managed by the Gateway
+              final WebClient client = WebClient.create();
+              return client.get().uri(
+                      UriComponentsBuilder.fromUriString(serviceBaseUrl)
+                          .pathSegment(serviceOutBaseUrl, resolvedAdminEndpoint)
+                          .build().toUri())
+                  .header(HttpHeaders.AUTHORIZATION,
+                      BEARER_TOKEN_PLACEHOLDER.formatted(auth.getToken().getTokenValue()))
+                  .header(config.getGoogleCloudRunAuthHeader(),
+                      BEARER_TOKEN_PLACEHOLDER.formatted(
+                          Optional.ofNullable(filterExchange.getAttribute("%s-%s".formatted(
+                                  configConstants.googleTokenAttribute(),
+                                  apiConfigs.projects().core().baseUrl())))
+                              .map(Object::toString)
+                              .orElse("")))
+                  .exchangeToMono(response -> response.bodyToMono(IsAdminDto.class))
+                  .switchIfEmpty(Mono.just(new IsAdminDto(false)))
+                  .map(isAdminResponse -> {
+                    processIsAdminResponse(config, filterExchange, isAdminResponse);
+                    return filterExchange;
+                  });
+            }).flatMap(chain::filter);
   }
 
-  private String obtainProjectId(final ServerWebExchange exchange, final Object input,
-      final String projectIdBodyField) {
+  private String obtainAssociatedEntityId(final Config config, final ServerWebExchange exchange,
+      final Object input, final String projectIdBodyField) {
+    final String associatedEntityIdParam =
+        config.isForProjectManagement() ? configConstants.mgmtIdParam()
+            : configConstants.projectIdParam();
     return Optional.ofNullable(
             exchange.getAttribute(ServerWebExchangeUtils.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
-        .map(Map.class::cast).map(attributes -> attributes.get(configConstants.projectIdParam()))
+        .map(Map.class::cast).map(attributes -> attributes.get(associatedEntityIdParam))
         .map(String.class::cast)
-        .orElseGet(() -> obtainProjectIdFromInputBody(input, projectIdBodyField));
+        .orElseGet(() -> obtainProjectIdFromInputBody(config, input, projectIdBodyField));
   }
 
-  private String obtainProjectIdFromInputBody(final Object input, final String projectIdBodyField) {
-    final boolean isMap = Map.class.isAssignableFrom(input.getClass());
-    if (!isMap) {
-      throw new IllegalArgumentException(
-          String.format("Trying to validate adminId from input of type [%s]",
-              input.getClass().getName()));
+  private String obtainProjectIdFromInputBody(final Config config, final Object input,
+      final String projectIdBodyField) {
+    final boolean isMap = input != null && Map.class.isAssignableFrom(input.getClass());
+    if (!isMap && logger.isDebugEnabled()) {
+      logger.debug("Trying to validate adminId from input of type [%s]",
+          input.getClass().getName());
+      return null;
     }
     final Map<String, Object> requestBody = (Map<String, Object>) input;
-    return (String) requestBody.get(projectIdBodyField);
+    final String associatedEntityId = (String) requestBody.get(projectIdBodyField);
+    if (associatedEntityId == null) {
+      throw new IllegalArgumentException(
+          "Can't obtain %s from request URI".formatted(
+              config.isForProjectManagement() ? configConstants.mgmtIdParam()
+                  : configConstants.projectIdParam()));
+    }
+    return associatedEntityId;
   }
 
+  private String obtainServiceBaseUrl(final Config config,
+      final GatewayApiConfigurations apiConfigs) {
+    return config.isForProjectManagement() ? apiConfigs.managements().core().baseUrl()
+        : apiConfigs.projects().core().baseUrl();
+  }
+
+  private String obtainServiceOutBaseUrl(final Config config,
+      final GatewayApiConfigurations apiConfigs) {
+    return config.isForProjectManagement() ? apiConfigs.managements().core().outBasePath()
+        : apiConfigs.projects().core().outBasePath();
+  }
+
+  private String obtainAdminEndpoint(final Config config, final String associatedEntityId) {
+    final String entityParamPlaceholder =
+        config.isForProjectManagement() ? configConstants.mgmtIdPlaceholder()
+            : configConstants.projectIdPlaceholder();
+    return config.isForProjectManagement() ? internalRoutesConfigs.managementsCore()
+        .isAdminEndpoint()
+        .replace(entityParamPlaceholder, associatedEntityId)
+        : internalRoutesConfigs.projectsCore()
+            .isAdminEndpoint()
+            .replace(entityParamPlaceholder, associatedEntityId);
+  }
+
+  private void processIsAdminResponse(final Config config, final ServerWebExchange filterExchange,
+      final IsAdminDto isAdminResponse) {
+    if (!config.isNonAdminRequestAllowed() && !isAdminResponse.isAdmin()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "Only admin can proceed");
+    }
+    if (logger.isDebugEnabled()) {
+      logger.debug("isAdmin result: %s".formatted(isAdminResponse.isAdmin()));
+    }
+    filterExchange.getAttributes()
+        .put(configConstants.isAdminAttribute(),
+            isAdminResponse.isAdmin());
+  }
 
   @Override
   public List<String> shortcutFieldOrder() {
-    return Arrays.asList("nonAdminRequestAllowed", "anonymousRequestAllowed",
-        "projectIdBodyField", "googleCloudRunAuthHeader");
+    return Arrays.asList("projectIdBodyField", "nonAdminRequestAllowed", "forProjectManagement",
+        "anonymousRequestAllowed",
+        "googleCloudRunAuthHeader");
   }
 
   /**
@@ -171,20 +252,14 @@ public class ValidateIsAdminGatewayFilterFactory extends
    */
   public static class Config {
 
+    private boolean forGetRequest;
     private String projectIdBodyField = "";
     private boolean nonAdminRequestAllowed;
+    private boolean forProjectManagement;
     private boolean anonymousRequestAllowed;
 
     private String googleCloudRunAuthHeader =
         AngoraSixInfrastructure.GOOGLE_CLOUD_RUN_INFRA_AUTH_HEADER;
-
-    public String getProjectIdBodyField() {
-      return projectIdBodyField;
-    }
-
-    public void setProjectIdBodyField(final String projectIdBodyField) {
-      this.projectIdBodyField = projectIdBodyField;
-    }
 
     public boolean isNonAdminRequestAllowed() {
       return nonAdminRequestAllowed;
@@ -208,6 +283,35 @@ public class ValidateIsAdminGatewayFilterFactory extends
 
     public void setGoogleCloudRunAuthHeader(final String googleCloudRunAuthHeader) {
       this.googleCloudRunAuthHeader = googleCloudRunAuthHeader;
+    }
+
+    public boolean isForProjectManagement() {
+      return forProjectManagement;
+    }
+
+    public void setForProjectManagement(final String associatedEntity) {
+      this.forProjectManagement = "projectManagement".equals(associatedEntity);
+    }
+
+    public boolean isForGetRequest() {
+      return forGetRequest;
+    }
+
+    public String getProjectIdBodyField() {
+      return projectIdBodyField;
+    }
+
+    /**
+     * Set the projectIdBodyField, if it's a GET request, it will be ignored.
+     *
+     * @param projectIdBodyField the field to obtain the projectId from the request body
+     */
+    public void setProjectIdBodyField(final String projectIdBodyField) {
+      if ("GET".equals(projectIdBodyField)) {
+        this.forGetRequest = true;
+      } else {
+        this.projectIdBodyField = projectIdBodyField;
+      }
     }
   }
 }

@@ -31,7 +31,7 @@ import reactor.core.publisher.Mono;
 public class ComposeFieldApiGatewayFilterFactory extends
     AbstractGatewayFilterFactory<ComposeFieldApiGatewayFilterFactory.Config> {
 
-  @Value("${server.port:9080}")
+  @Value("${server.port:10000}")
   /* default */
   private transient int serverPort;
 

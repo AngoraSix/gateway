@@ -10,9 +10,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author rozagerardo
  */
 @ConfigurationProperties(prefix = "configs.constants")
-public record ConfigConstants(String projectIdParam, String projectIdPlaceholder,
-                              String adminProjectIdsParam, String isProjectAdminAttribute,
-                              String projectIdsAttribute, String googleTokenAttribute,
+public record ConfigConstants(String projectIdParam,
+                              String mgmtIdParam,
+                              String mgmtIdPlaceholder,
+                              String projectIdPlaceholder,
+                              String adminProjectIdsParam,
+                              String isAdminAttribute,
+                              String projectIdsAttribute,
+                              String googleTokenAttribute,
                               String googleTokenUrlPattern,
                               String googleAudiencePlaceholder) {
 
