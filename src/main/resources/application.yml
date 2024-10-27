@@ -71,8 +71,8 @@ configs:
       publishA6Event: ${A6_GATEWAY_INTERNALROUTES_EVENTS_A6_RESOURCE:a6-resource}
   constants:
     projectIdParam: projectId
-    projectManagementIdParam: projectManagementId
-    projectManagementIdPlaceholder: :projectManagementId
+    mgmtIdParam: projectManagementId
+    mgmtIdPlaceholder: :projectManagementId
     projectIdPlaceholder: :projectId
     adminProjectIdsParam: adminProjectIds
     isAdminAttribute: com.angorasix.gateway.infrastructure.config.constants.isProjectAdmin

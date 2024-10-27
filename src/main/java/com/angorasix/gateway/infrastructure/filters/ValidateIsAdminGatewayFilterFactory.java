@@ -172,7 +172,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
   private String obtainAssociatedEntityId(final Config config, final ServerWebExchange exchange,
       final Object input, final String projectIdBodyField) {
     final String associatedEntityIdParam =
-        config.isForProjectManagement() ? configConstants.projectManagementIdParam()
+        config.isForProjectManagement() ? configConstants.mgmtIdParam()
             : configConstants.projectIdParam();
     return Optional.ofNullable(
             exchange.getAttribute(ServerWebExchangeUtils.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
@@ -194,7 +194,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
     if (associatedEntityId == null) {
       throw new IllegalArgumentException(
           "Can't obtain %s from request URI".formatted(
-              config.isForProjectManagement() ? configConstants.projectManagementIdParam()
+              config.isForProjectManagement() ? configConstants.mgmtIdParam()
                   : configConstants.projectIdParam()));
     }
     return associatedEntityId;
@@ -213,15 +213,15 @@ public class ValidateIsAdminGatewayFilterFactory extends
   }
 
   private String obtainAdminEndpoint(final Config config, final String associatedEntityId) {
-    final String associatedEntityIdParamPlaceholder =
-        config.isForProjectManagement() ? configConstants.projectManagementIdPlaceholder()
+    final String entityParamPlaceholder =
+        config.isForProjectManagement() ? configConstants.mgmtIdPlaceholder()
             : configConstants.projectIdPlaceholder();
     return config.isForProjectManagement() ? internalRoutesConfigs.managementsCore()
         .isAdminEndpoint()
-        .replace(associatedEntityIdParamPlaceholder, associatedEntityId)
+        .replace(entityParamPlaceholder, associatedEntityId)
         : internalRoutesConfigs.projectsCore()
             .isAdminEndpoint()
-            .replace(associatedEntityIdParamPlaceholder, associatedEntityId);
+            .replace(entityParamPlaceholder, associatedEntityId);
   }
 
   private void processIsAdminResponse(final Config config, final ServerWebExchange filterExchange,

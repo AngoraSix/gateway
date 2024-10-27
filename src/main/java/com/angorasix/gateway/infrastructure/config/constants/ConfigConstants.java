@@ -11,8 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "configs.constants")
 public record ConfigConstants(String projectIdParam,
-                              String projectManagementIdParam,
-                              String projectManagementIdPlaceholder,
+                              String mgmtIdParam,
+                              String mgmtIdPlaceholder,
                               String projectIdPlaceholder,
                               String adminProjectIdsParam,
                               String isAdminAttribute,
