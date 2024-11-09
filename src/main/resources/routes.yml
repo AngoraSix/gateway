@@ -212,6 +212,16 @@ spring:
             - AddIsAdminHeader
             - SetRequestHeader=Content-Type, application/prs.hal-forms+json
             - TokenRelay
+        - id: managementintegrations_route--post
+          uri: ${configs.api.managements.integrations.baseUrl}
+          predicates:
+            - Path=/management/integrations/**
+            - Method=POST
+          filters:
+            - RewritePath=/${configs.api.managements.integrations.inBasePath}(?<segment>.*), /${configs.api.managements.integrations.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - TokenRelay=
         - id: managementintegrations_route--patch
           uri: ${configs.api.managements.integrations.baseUrl}
           predicates:
