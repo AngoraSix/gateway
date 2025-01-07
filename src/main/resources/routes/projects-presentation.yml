@@ -1,0 +1,69 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        # PROJECTS PRESENTATION
+        - id: projectspresentation_route--get--shallow
+          uri: ${configs.api.projects.presentation.baseUrl}
+          predicates:
+            - Path=/projects/presentations/**
+            - Method=GET
+            - Query=shallow
+          filters:
+            - RewritePath=/${configs.api.projects.presentation.inBasePath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+        - id: projectspresentation_route--get
+          uri: ${configs.api.projects.presentation.baseUrl}
+          predicates:
+            - Path=/projects/presentations/**
+            - Method=GET
+          filters:
+            - RewritePath=/${configs.api.projects.presentation.inBasePath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
+            - TokenRelay=
+        - id: projectspresentation_route--get-single
+          uri: ${configs.api.projects.presentation.baseUrl}
+          predicates:
+            - Path=/projects/{projectId}/presentations/**
+            - Method=GET
+          filters:
+            - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - TokenRelay=
+            - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
+        - id: projectspresentation_route--update
+          uri: ${configs.api.projects.presentation.baseUrl}
+          predicates:
+            - Path=/projects/{projectId}/presentations/{projectPresentationId}
+            - Method=PUT
+          filters:
+            - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
+            - ValidateIsAdmin=projectId,false,project,false
+            - TokenRelay=
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+        - id: projectspresentation_route--post
+          uri: ${configs.api.projects.presentation.baseUrl}
+          predicates:
+            - Path=/projects/{projectId}/presentations/**
+            - Method=POST
+          filters:
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - RewritePath=/${configs.api.projects.presentation.inProjectBasedPath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - TokenRelay=
+        - id: projectspresentation_route
+          uri: ${configs.api.projects.presentation.baseUrl}
+          predicates:
+            - Path=/projects/presentations/**
+          filters:
+            - RewritePath=/${configs.api.projects.presentation.inBasePath}(?<segment>.*), /${configs.api.projects.presentation.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}

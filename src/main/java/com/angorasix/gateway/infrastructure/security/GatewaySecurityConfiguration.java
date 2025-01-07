@@ -39,6 +39,8 @@ public class GatewaySecurityConfiguration {
                 "/media/static/**",
                 "/projects/*/management/**",
                 "/projects/management/**").permitAll()
+            .pathMatchers(HttpMethod.POST,
+                "/surveys/**").permitAll()
             .anyExchange().authenticated()
         ).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
         .csrf(csrf -> csrf.disable());

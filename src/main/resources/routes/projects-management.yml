@@ -1,0 +1,52 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        # PROJECTS MANAGEMENT
+        - id: projectsmanagementcore_route--get--shallow
+          uri: ${configs.api.managements.core.baseUrl}
+          predicates:
+            - Path=/projects/management/**
+            - Method=GET
+            - Query=shallow
+          filters:
+            - RewritePath=/${configs.api.managements.core.inBasePath}(?<segment>.*), /${configs.api.managements.core.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+        - id: projectsmanagementcore_route--get
+          uri: ${configs.api.managements.core.baseUrl}
+          predicates:
+            - Path=/projects/management/**
+            - Method=GET
+          filters:
+            - RewritePath=/${configs.api.managements.core.inBasePath}(?<segment>.*), /${configs.api.managements.core.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
+        - id: projectsmanagementcore_route--get-single-by-projectid
+          uri: ${configs.api.managements.core.baseUrl}
+          predicates:
+            - Path=/projects/{projectId}/management
+            - Method=GET
+          filters:
+            - RewritePath=/${configs.api.managements.core.inProjectBasedPath}(?<segment>.*), /${configs.api.managements.core.outProjectBasedPath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
+            - ValidateIsAdmin=GET,true,project,true
+            - AddIsAdminHeader
+            - TokenRelay
+            - ComposeFieldApi=projectId,/projects/core,ids,shallow,id,project
+        - id: projectsmanagementcore_route--post
+          uri: ${configs.api.managements.core.baseUrl}
+          predicates:
+            - Path=/projects/{projectId}/management/**
+            - Method=POST
+          filters:
+            - RewritePath=/${configs.api.managements.core.inProjectBasedPath}(?<segment>.*), /${configs.api.managements.core.outProjectBasedPath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
+            - ValidateIsAdmin
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - TokenRelay

@@ -1,0 +1,16 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        # SURVEYS
+        - id: surveys_route--save-response
+          uri: ${configs.api.surveys.baseUrl}
+          predicates:
+            - Path=/surveys/**
+            - Method=POST
+          filters:
+            - RewritePath=/${configs.api.surveys.inBasePath}(?<segment>.*), /${configs.api.surveys.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - TokenRelay

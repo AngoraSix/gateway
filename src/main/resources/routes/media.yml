@@ -1,0 +1,13 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        # MEDIA
+        - id: media_route
+          uri: ${configs.api.media.baseUrl}
+          predicates:
+            - Path=/media/**
+          filters:
+            - RewritePath=/${configs.api.media.inBasePath}(?<segment>.*), /${configs.api.media.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
