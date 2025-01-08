@@ -57,6 +57,10 @@ configs:
       baseUrl: ${A6_GATEWAY_NOTIFICATIONS_URI:http://localhost:10102}
       inBasePath: ${A6_GATEWAY_NOTIFICATIONS_INBASEPATH:notifications}
       outBasePath: ${A6_GATEWAY_NOTIFICATIONS_OUTBASEPATH:notifications}
+    surveys:
+      baseUrl: ${A6_GATEWAY_SURVEYS_URI:http://localhost:10951}
+      inBasePath: ${A6_GATEWAY_SURVEYS_INBASEPATH:surveys}
+      outBasePath: ${A6_GATEWAY_SURVEYS_OUTBASEPATH:surveys}
   internalRoutes:
     projectsCore:
       isAdminEndpoint: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCORE_ISADMIN::projectId/isAdmin}
@@ -83,7 +87,17 @@ configs:
 
 spring:
   config:
-    import: optional:file:config/env.properties, optional:file:/config/env.properties, classpath:/routes.yml, , classpath:/security.yml
+    import:
+      - optional:file:config/env.properties
+      - classpath:/security.yml
+      - classpath:routes/contributors.yml
+      - classpath:routes/management-integrations.yml
+      - classpath:routes/media.yml
+      - classpath:routes/notifications.yml
+      - classpath:routes/projects-core.yml
+      - classpath:routes/projects-management.yml
+      - classpath:routes/projects-presentation.yml
+      - classpath:routes/surveys.yml
   application:
     name: ${APP_NAME:gateway}
   cloud:

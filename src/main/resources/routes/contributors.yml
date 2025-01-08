@@ -1,0 +1,21 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        #  CONTRIBUTORS
+        - id: contributors_patch_route
+          uri: ${configs.api.contributors.baseUrl}
+          predicates:
+            - Path=/contributors/**
+            - Method=PATCH
+          filters:
+            - RewritePath=/${configs.api.contributors.inBasePath}(?<segment>.*), /${configs.api.contributors.outBasePath}$\{segment}
+            - TokenRelay=
+        - id: contributors_get_contributor
+          uri: ${configs.api.contributors.baseUrl}
+          predicates:
+            - Path=/contributors/**
+            - Method=GET
+          filters:
+            - RewritePath=/${configs.api.contributors.inBasePath}(?<segment>.*), /${configs.api.contributors.outBasePath}$\{segment}
+            - TokenRelay=
