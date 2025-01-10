@@ -17,7 +17,7 @@ public class GatewayRoutesProperties {
     return routes;
   }
 
-  public void setRoutes(Map<String, List<RouteDefinition>> routes) {
+  public void setRoutes(final Map<String, List<RouteDefinition>> routes) {
     this.routes = routes;
   }
 }

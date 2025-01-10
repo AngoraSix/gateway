@@ -16,14 +16,14 @@ public class CustomRouteDefinitionRepository implements RouteDefinitionRepositor
 
   private final GatewayRoutesProperties gatewayRoutesProperties;
 
-  public CustomRouteDefinitionRepository(GatewayRoutesProperties gatewayRoutesProperties) {
+  public CustomRouteDefinitionRepository(final GatewayRoutesProperties gatewayRoutesProperties) {
     this.gatewayRoutesProperties = gatewayRoutesProperties;
   }
 
   @Override
   public Flux<RouteDefinition> getRouteDefinitions() {
     // Merge all service-specific route lists into one big list
-    List<RouteDefinition> allRoutes = new ArrayList<>();
+    final List<RouteDefinition> allRoutes = new ArrayList<>();
     if (gatewayRoutesProperties.getRoutes() != null) {
       gatewayRoutesProperties.getRoutes().forEach((serviceName, routeList) -> {
         if (routeList != null) {
@@ -37,7 +37,7 @@ public class CustomRouteDefinitionRepository implements RouteDefinitionRepositor
   }
 
   @Override
-  public Mono<Void> save(Mono<RouteDefinition> route) {
+  public Mono<Void> save(final Mono<RouteDefinition> route) {
     // If you want to allow dynamic add:
     //  1) parse route
     //  2) store in some persistent place
@@ -47,7 +47,7 @@ public class CustomRouteDefinitionRepository implements RouteDefinitionRepositor
   }
 
   @Override
-  public Mono<Void> delete(Mono<String> routeId) {
+  public Mono<Void> delete(final Mono<String> routeId) {
     // Similar to save, implement if you want dynamic deletes
     return Mono.error(new UnsupportedOperationException("Not supported yet"));
   }
