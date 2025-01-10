@@ -1,7 +1,7 @@
-spring:
-  cloud:
-    gateway:
-      routes:
+config:
+  gateway:
+    routes:
+      management.integrations:
         # MANAGEMENT INTEGRATIONS
         - id: managementintegrations_route--get-list-by-managementId
           uri: ${configs.api.managements.integrations.baseUrl}

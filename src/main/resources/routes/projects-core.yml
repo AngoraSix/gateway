@@ -1,7 +1,7 @@
-spring:
-  cloud:
-    gateway:
-      routes:
+config:
+  gateway:
+    routes:
+      projects.core:
         # PROJECTS CORE
         - id: projectscore_route--get--shallow
           uri: ${configs.api.projects.core.baseUrl}

@@ -1,7 +1,7 @@
-spring:
-  cloud:
-    gateway:
-      routes:
+config:
+  gateway:
+    routes:
+      projects.presentation:
         # PROJECTS PRESENTATION
         - id: projectspresentation_route--get--shallow
           uri: ${configs.api.projects.presentation.baseUrl}

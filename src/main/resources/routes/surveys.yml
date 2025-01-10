@@ -1,7 +1,7 @@
-spring:
-  cloud:
-    gateway:
-      routes:
+config:
+  gateway:
+    routes:
+      surveys:
         # SURVEYS
         - id: surveys_route--save-response
           uri: ${configs.api.surveys.baseUrl}

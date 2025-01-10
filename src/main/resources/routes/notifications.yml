@@ -1,7 +1,7 @@
-spring:
-  cloud:
-    gateway:
-      routes:
+config:
+  gateway:
+    routes:
+      notifications:
         # NOTIFICATIONS
         - id: notifications_route--get
           uri: ${configs.api.notifications.baseUrl}
