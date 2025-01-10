@@ -1,7 +1,7 @@
-spring:
-  cloud:
-    gateway:
-      routes:
+config:
+  gateway:
+    routes:
+      contributors:
         #  CONTRIBUTORS
         - id: contributors_patch_route
           uri: ${configs.api.contributors.baseUrl}

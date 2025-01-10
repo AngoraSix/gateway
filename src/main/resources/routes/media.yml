@@ -1,7 +1,7 @@
-spring:
-  cloud:
-    gateway:
-      routes:
+config:
+  gateway:
+    routes:
+      media:
         # MEDIA
         - id: media_route
           uri: ${configs.api.media.baseUrl}

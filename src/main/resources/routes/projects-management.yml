@@ -1,7 +1,7 @@
-spring:
-  cloud:
-    gateway:
-      routes:
+config:
+  gateway:
+    routes:
+      projects.management:
         # PROJECTS MANAGEMENT
         - id: projectsmanagementcore_route--get--shallow
           uri: ${configs.api.managements.core.baseUrl}
