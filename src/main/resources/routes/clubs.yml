@@ -1,0 +1,77 @@
+config:
+  gateway:
+    routes:
+      clubs:
+        # CLUBS
+        - id: clubs_route--get-wellknown-club
+          uri: ${configs.api.clubs.baseUrl}
+          predicates:
+            - Path=/clubs/well-known/{projectId}/{clubType}
+            - Method=GET
+          filters:
+            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
+            - ValidateIsAdmin=GET,true
+            - AddIsAdminHeader
+            - TokenRelay=
+        - id: clubs_route--get-all-wellknown-club
+          uri: ${configs.api.clubs.baseUrl}
+          predicates:
+            - Path=/clubs/well-known/{projectId}
+            - Method=GET
+          filters:
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json # not necessary?
+            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
+            - ValidateIsAdmin=GET,true
+            - AddIsAdminHeader
+            - TokenRelay
+        - id: clubs_route--get-administered-wellknown-club
+          uri: ${configs.api.clubs.baseUrl}
+          predicates:
+            - Path=/clubs/well-known
+            - Method=GET
+          filters:
+            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - TokenRelay=
+        - id: clubs_route--patch-wellknown-club
+          uri: ${configs.api.clubs.baseUrl}
+          predicates:
+            - Path=/clubs/well-known/{projectId}/{type}
+            - Method=PATCH
+          filters:
+            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.events.baseUrl}
+            - A6EventPrepare
+            - name: A6EventTrigger
+              args:
+                subjectType: club
+                subjectIdUriTemplateKeys: projectId+type
+                defaultSubjectEvent: modifyMember
+                patchToSubjectEventMap:
+                  members:
+                    remove: removeMember
+                    add: addMember
+            - TokenRelay=
+        - id: clubs_route--register-wellknown-clubs
+          uri: ${configs.api.clubs.baseUrl}
+          predicates:
+            - Path=/clubs/well-known/{projectId}
+            - Method=POST
+          filters:
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.projects.core.baseUrl}
+            - ValidateIsAdmin
+            - AddIsAdminHeader
+            - TokenRelay

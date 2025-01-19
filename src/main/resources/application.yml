@@ -90,6 +90,7 @@ spring:
     import:
       - optional:file:config/env.properties
       - classpath:/security.yml
+      - classpath:routes/clubs.yml
       - classpath:routes/contributors.yml
       - classpath:routes/management-integrations.yml
       - classpath:routes/media.yml
