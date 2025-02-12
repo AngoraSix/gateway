@@ -75,3 +75,25 @@ config:
             - ValidateIsAdmin
             - AddIsAdminHeader
             - TokenRelay
+        - id: clubs_route--post-club-new-invitation
+          uri: ${configs.api.clubs.baseUrl}
+          predicates:
+            - Path=/clubs/{clubId}/invitations
+            - Method=POST
+          filters:
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - TokenRelay
+        - id: clubs_route--post-club-process-invitation
+          uri: ${configs.api.clubs.baseUrl}
+          predicates:
+            - Path=/clubs/{clubId}/invitations/{token}
+            - Method=POST
+          filters:
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - RewritePath=/${configs.api.clubs.inBasePath}(?<segment>.*), /${configs.api.clubs.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - TokenRelay
