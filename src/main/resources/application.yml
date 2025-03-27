@@ -40,6 +40,12 @@ configs:
         inManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INTEGRATION_INMANAGEMENTBASEDPATH:management/integrations/project-management/(?<projectManagementId>.*?)}
         outManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INTEGRATION_OUTMANAGEMENTBASEDPATH:managements-integration/project-management/$\{projectManagementId}}
         outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INTEGRATION_OUTBASEPATH:managements-integration}
+      tasks:
+        baseUrl: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_URI:http://localhost:10301}
+        inBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_INBASEPATH:management/tasks}
+        inManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_INMANAGEMENTBASEDPATH:management/tasks/project-management/(?<projectManagementId>.*?)}
+        outManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_OUTMANAGEMENTBASEDPATH:management-tasks/project-management/$\{projectManagementId}}
+        outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_OUTBASEPATH:management-tasks}
 
     media:
       baseUrl: ${A6_GATEWAY_MEDIA_URI:http://localhost:10001}
@@ -93,6 +99,7 @@ spring:
       - classpath:routes/clubs.yml
       - classpath:routes/contributors.yml
       - classpath:routes/management-integrations.yml
+      - classpath:routes/management-tasks.yml
       - classpath:routes/media.yml
       - classpath:routes/notifications.yml
       - classpath:routes/projects-core.yml

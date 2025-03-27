@@ -1,0 +1,16 @@
+config:
+  gateway:
+    routes:
+      management.tasks:
+        # MANAGEMENT TASKS
+        - id: managementtasks_route--get-by-managementId
+          uri: ${configs.api.managements.tasks.baseUrl}
+          predicates:
+            - Path=/management/tasks/project-management/{projectManagementId}/**
+            - Method=GET
+          filters:
+            - RewritePath=/${configs.api.managements.tasks.inManagementBasedPath}(?<segment>.*), /${configs.api.managements.tasks.outManagementBasedPath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - TokenRelay
