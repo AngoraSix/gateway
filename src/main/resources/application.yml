@@ -55,6 +55,10 @@ configs:
       baseUrl: ${A6_GATEWAY_CLUBS_URI:http://localhost:10900}
       inBasePath: ${A6_GATEWAY_CLUBS_INBASEPATH:clubs}
       outBasePath: ${A6_GATEWAY_CLUBS_OUTBASEPATH:clubs}
+      inProjectBasedPath: ${A6_GATEWAY_CLUBS_INPROJECTBASEDPATH:clubs/project/(?<projectId>.*?)}
+      outProjectBasedPath: ${A6_GATEWAY_CLUBS_OUTPROJECTBASEDPATH:clubs/project/$\{projectId}}
+      inManagementBasedPath: ${A6_GATEWAY_CLUBS_INMANAGEMENTBASEDPATH:clubs/project-management/(?<projectManagementId>.*?)}
+      outManagementBasedPath: ${A6_GATEWAY_CLUBS_OUTMANAGEMENTBASEDPATH:clubs/project-management/$\{projectManagementId}}
     events:
       baseUrl: ${A6_GATEWAY_EVENTS_URI:http://localhost:10101}
       inBasePath: ${A6_GATEWAY_EVENTS_INBASEPATH:events}
