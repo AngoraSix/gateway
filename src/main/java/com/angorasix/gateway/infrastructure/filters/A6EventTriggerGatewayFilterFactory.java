@@ -1,7 +1,7 @@
 package com.angorasix.gateway.infrastructure.filters;
 
 import com.angorasix.commons.infrastructure.constants.AngoraSixInfrastructure;
-import com.angorasix.commons.infrastructure.intercommunication.events.dto.A6InfraEventDto;
+import com.angorasix.commons.infrastructure.intercommunication.events.GatewayEventTriggered;
 import com.angorasix.gateway.infrastructure.config.api.GatewayApiConfigurations;
 import com.angorasix.gateway.infrastructure.config.constants.ConfigConstants;
 import com.angorasix.gateway.infrastructure.config.internalroutes.GatewayInternalRoutesConfigurations;
@@ -21,6 +21,7 @@ import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyResponseBo
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -38,6 +39,7 @@ import reactor.core.publisher.Mono;
  *
  * @author rozagerardo
  */
+@SuppressWarnings("PMD.ExcessiveImports")
 @Component
 public class A6EventTriggerGatewayFilterFactory extends AbstractGatewayFilterFactory<Config> {
 
@@ -88,7 +90,10 @@ public class A6EventTriggerGatewayFilterFactory extends AbstractGatewayFilterFac
 
                   final String resolvedEventsEndpoint = internalRoutesConfigs.events()
                       .publishA6Event();
-                  final String resolvedSubjectId = obtainSubjectId(filterExchange, config, input);
+                  final String resolvedSubjectId = obtainSubjectId(
+                      filterExchange,
+                      config,
+                      input);
                   final WebClient client = WebClient.create();
                   return client.post().uri(
                           UriComponentsBuilder.fromUriString(
@@ -107,16 +112,23 @@ public class A6EventTriggerGatewayFilterFactory extends AbstractGatewayFilterFac
                                       apiConfigs.events().baseUrl())))
                                   .map(Object::toString)
                                   .orElse("")))
-                      .bodyValue(new A6InfraEventDto(config.getSubjectType(), resolvedSubjectId,
-                          obtainSubjectEvent(config, isPatchRequest, filterExchange.getAttribute(
-                              ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR)),
-                          input
-                      )).retrieve().onStatus(status -> status.isError(), (r) -> {
-                        logger.error("Error publishing event", r);
-                        return Mono.empty();
-                      })
+                      .bodyValue(
+                          new GatewayEventTriggered(config.getSubjectType(), resolvedSubjectId,
+                              obtainSubjectEvent(config, isPatchRequest,
+                                  filterExchange.getAttribute(
+                                      ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR)),
+                              input
+                          )
+                      ).retrieve().onStatus(
+                          HttpStatusCode::isError,
+                          r -> {
+                            logger.error("Error publishing event: {}", r);
+                            return Mono.empty();
+                          })
                       .toBodilessEntity().thenReturn(input);
-                })));
+                })
+        )
+    );
 
   }
 
@@ -127,7 +139,7 @@ public class A6EventTriggerGatewayFilterFactory extends AbstractGatewayFilterFac
                 exchange.getAttribute(ServerWebExchangeUtils.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
             .map(Map.class::cast)
             .map(attributes -> Arrays.stream(config.getSubjectIdUriTemplateKeys().split("\\+"))
-                .map(key -> attributes.get(key)).map(String.class::cast).collect(
+                .map(attributes::get).map(String.class::cast).collect(
                     Collectors.joining("+"))))
         .orElseThrow(() -> new IllegalArgumentException(
             "Can't obtain subjectId from request URI"));
