@@ -19,6 +19,7 @@ import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFac
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -38,6 +39,7 @@ import reactor.core.publisher.Mono;
  *
  * @author rozagerardo
  */
+@SuppressWarnings("PMD.ExcessiveImports")
 @Component
 public class ValidateIsAdminGatewayFilterFactory extends
     AbstractGatewayFilterFactory<ValidateIsAdminGatewayFilterFactory.Config> {
@@ -185,7 +187,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
       final String projectIdBodyField) {
     final boolean isMap = input != null && Map.class.isAssignableFrom(input.getClass());
     if (!isMap && logger.isDebugEnabled()) {
-      logger.debug("Trying to validate adminId from input of type [%s]",
+      logger.debug("Trying to validate adminId from input of type {}",
           input.getClass().getName());
       return null;
     }
@@ -307,7 +309,7 @@ public class ValidateIsAdminGatewayFilterFactory extends
      * @param projectIdBodyField the field to obtain the projectId from the request body
      */
     public void setProjectIdBodyField(final String projectIdBodyField) {
-      if ("GET".equals(projectIdBodyField)) {
+      if (HttpMethod.GET.name().equals(projectIdBodyField)) {
         this.forGetRequest = true;
       } else {
         this.projectIdBodyField = projectIdBodyField;

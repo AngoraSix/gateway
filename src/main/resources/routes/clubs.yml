@@ -62,7 +62,7 @@ config:
                 patchToSubjectEventMap:
                   members:
                     remove: removeMember
-                    add: addMember
+                    add: projectClubMemberJoined
             - TokenRelay=
         - id: clubs_route--patch-wellknown-club-for-management
           uri: ${configs.api.clubs.baseUrl}
@@ -83,7 +83,7 @@ config:
                 patchToSubjectEventMap:
                   members:
                     remove: removeMember
-                    add: addMember
+                    add: projectClubMemberJoined
             - TokenRelay=
         - id: clubs_route--register-wellknown-clubs-for-project
           uri: ${configs.api.clubs.baseUrl}
