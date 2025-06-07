@@ -46,6 +46,12 @@ configs:
         inManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_INMANAGEMENTBASEDPATH:management/tasks/project-management/(?<projectManagementId>.*?)}
         outManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_OUTMANAGEMENTBASEDPATH:management-tasks/project-management/$\{projectManagementId}}
         outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_OUTBASEPATH:management-tasks}
+      accounting:
+        baseUrl: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_URI:http://localhost:10303}
+        inBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_INBASEPATH:management/accounting}
+        inManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_INMANAGEMENTBASEDPATH:management/accounting/project-management/(?<projectManagementId>.*?)}
+        outManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_OUTMANAGEMENTBASEDPATH:management-accounting/project-management/$\{projectManagementId}}
+        outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_OUTBASEPATH:management-accounting}
 
     media:
       baseUrl: ${A6_GATEWAY_MEDIA_URI:http://localhost:10001}
@@ -104,6 +110,7 @@ spring:
       - classpath:routes/contributors.yml
       - classpath:routes/management-integrations.yml
       - classpath:routes/management-tasks.yml
+      - classpath:routes/management-accounting.yml
       - classpath:routes/media.yml
       - classpath:routes/notifications.yml
       - classpath:routes/projects-core.yml
