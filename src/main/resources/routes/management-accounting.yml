@@ -1,0 +1,16 @@
+config:
+  gateway:
+    routes:
+      management.accounting:
+        # MANAGEMENT ACCOUNTING
+        - id: managementaccounting_route--get-by-managementId
+          uri: ${configs.api.managements.accounting.baseUrl}
+          predicates:
+            - Path=/management/accounting/project-management/{projectManagementId}/**
+            - Method=GET
+          filters:
+            - RewritePath=/${configs.api.managements.accounting.inManagementBasedPath}(?<segment>.*), /${configs.api.managements.accounting.outManagementBasedPath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - TokenRelay
