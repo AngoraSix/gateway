@@ -14,3 +14,14 @@ config:
             - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
             - SetRequestHeader=Content-Type, application/prs.hal-forms+json
             - TokenRelay
+        - id: surveys_route--get-response
+          uri: ${configs.api.surveys.baseUrl}
+          predicates:
+            - Path=/surveys/**
+            - Method=GET
+          filters:
+            - RewritePath=/${configs.api.surveys.inBasePath}(?<segment>.*), /${configs.api.surveys.outBasePath}$\{segment}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - TokenRelay
