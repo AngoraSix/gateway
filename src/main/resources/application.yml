@@ -31,9 +31,9 @@ configs:
       core:
         baseUrl: ${A6_GATEWAY_PROJECTS_MANAGEMENT_URI:http://localhost:10300}
         inBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INBASEPATH:projects/management}
+        outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_OUTBASEPATH:managements-core}
         inProjectBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INPROJECTBASEDPATH:projects/(?<projectId>.*?)/management}
         outProjectBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_OUTPROJECTBASEDPATH:managements-core/project/$\{projectId}}
-        outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_OUTBASEPATH:managements-core}
       integrations:
         baseUrl: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INTEGRATION_URI:http://localhost:10302}
         inBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_INTEGRATION_INBASEPATH:management/integrations}
@@ -47,11 +47,11 @@ configs:
         outManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_OUTMANAGEMENTBASEDPATH:management-tasks/project-management/$\{projectManagementId}}
         outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_OUTBASEPATH:management-tasks}
       accounting:
-        baseUrl: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_URI:http://localhost:10303}
-        inBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_INBASEPATH:management/accounting}
-        inManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_INMANAGEMENTBASEDPATH:management/accounting/project-management/(?<projectManagementId>.*?)}
-        outManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_OUTMANAGEMENTBASEDPATH:management-accounting/project-management/$\{projectManagementId}}
-        outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_TASK_OUTBASEPATH:management-accounting}
+        baseUrl: ${A6_GATEWAY_PROJECTS_MANAGEMENT_ACCOUNTING_URI:http://localhost:10303}
+        inBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_ACCOUNTING_INBASEPATH:management/accounting}
+        inManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_ACCOUNTING_INMANAGEMENTBASEDPATH:management/accounting/project-management/(?<projectManagementId>.*?)}
+        outManagementBasedPath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_ACCOUNTING_OUTMANAGEMENTBASEDPATH:management-accounting/project-management/$\{projectManagementId}}
+        outBasePath: ${A6_GATEWAY_PROJECTS_MANAGEMENT_ACCOUNTING_OUTBASEPATH:management-accounting}
 
     media:
       baseUrl: ${A6_GATEWAY_MEDIA_URI:http://localhost:10001}
