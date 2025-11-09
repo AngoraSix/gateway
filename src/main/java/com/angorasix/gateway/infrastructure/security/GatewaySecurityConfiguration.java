@@ -39,7 +39,9 @@ public class GatewaySecurityConfiguration {
                 "/contributors/**",
                 "/media/static/**",
                 "/projects/*/management/**",
-                "/projects/management/**").permitAll()
+                "/projects/management/**",
+                "/management/tasks/project-management/**",
+                "/management/accounting/project-management/**").permitAll()
             .pathMatchers(HttpMethod.POST,
                 "/surveys/**").permitAll()
             .anyExchange().authenticated()
