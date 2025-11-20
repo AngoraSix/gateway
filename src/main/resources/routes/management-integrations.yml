@@ -12,6 +12,7 @@ config:
             - RewritePath=/${configs.api.managements.integrations.inManagementBasedPath}(?<segment>.*), /${configs.api.managements.integrations.outManagementBasedPath}$\{segment}
             - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
             - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.managements.core.baseUrl}
             - ValidateIsAdmin=GET,true,projectManagement
             - AddIsAdminHeader
             - SetRequestHeader=Content-Type, application/prs.hal-forms+json
@@ -25,6 +26,7 @@ config:
             - RewritePath=/${configs.api.managements.integrations.inManagementBasedPath}(?<segment>.*), /${configs.api.managements.integrations.outManagementBasedPath}$\{segment}
             - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
             - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false},${configs.api.managements.core.baseUrl}
             - ValidateIsAdmin=managementId,false,projectManagement
             - AddIsAdminHeader
             - SetRequestHeader=Content-Type, application/prs.hal-forms+json
