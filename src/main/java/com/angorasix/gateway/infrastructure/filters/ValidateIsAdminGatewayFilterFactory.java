@@ -114,7 +114,9 @@ public class ValidateIsAdminGatewayFilterFactory extends
                               Optional.ofNullable(
                                       filterExchange.getAttribute("%s-%s".formatted(
                                           configConstants.googleTokenAttribute(),
-                                          apiConfigs.projects().core().baseUrl())))
+                                          config.isForProjectManagement() ? apiConfigs.managements()
+                                              .core().baseUrl()
+                                              : apiConfigs.projects().core().baseUrl())))
                                   .map(Object::toString)
                                   .orElse("")))
                       .exchangeToMono(response -> response.bodyToMono(IsAdminDto.class))
@@ -159,7 +161,8 @@ public class ValidateIsAdminGatewayFilterFactory extends
                       BEARER_TOKEN_PLACEHOLDER.formatted(
                           Optional.ofNullable(filterExchange.getAttribute("%s-%s".formatted(
                                   configConstants.googleTokenAttribute(),
-                                  apiConfigs.projects().core().baseUrl())))
+                                  config.isForProjectManagement() ? apiConfigs.managements().core()
+                                      .baseUrl() : apiConfigs.projects().core().baseUrl())))
                               .map(Object::toString)
                               .orElse("")))
                   .exchangeToMono(response -> response.bodyToMono(IsAdminDto.class))
