@@ -1,0 +1,16 @@
+config:
+  gateway:
+    routes:
+      messaging:
+        # MESSAGING
+        - id: messaging_route--wakeup
+          uri: ${configs.api.messaging.baseUrl}
+          predicates:
+            - Path=/messaging/wakeup
+            - Method=POST
+          filters:
+            - RewritePath=/${configs.api.messaging.inBasePath}/wakeup, /${configs.api.messaging.outBasePath}/wakeup
+            - ProcessGoogleCloudRunAuth=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - AddGoogleCloudRunAuthHeader=${A6_GATEWAY_INFRA_GOOGLE_CLOUDRUN_AUTH_ENABLED:false}
+            - SetRequestHeader=Content-Type, application/prs.hal-forms+json
+            - TokenRelay
