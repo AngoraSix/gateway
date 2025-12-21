@@ -77,6 +77,10 @@ configs:
       baseUrl: ${A6_GATEWAY_SURVEYS_URI:http://localhost:10951}
       inBasePath: ${A6_GATEWAY_SURVEYS_INBASEPATH:surveys}
       outBasePath: ${A6_GATEWAY_SURVEYS_OUTBASEPATH:surveys}
+    messaging:
+      baseUrl: ${A6_GATEWAY_MESSAGING_URI:http://localhost:10952}
+      inBasePath: ${A6_GATEWAY_MESSAGING_INBASEPATH:messaging}
+      outBasePath: ${A6_GATEWAY_MESSAGING_OUTBASEPATH:messaging}
   internalRoutes:
     projectsCore:
       isAdminEndpoint: ${A6_GATEWAY_INTERNALROUTES_PROJECTSCORE_ISADMIN::projectId/isAdmin}
@@ -117,6 +121,7 @@ spring:
       - classpath:routes/projects-management.yml
       - classpath:routes/projects-presentation.yml
       - classpath:routes/surveys.yml
+      - classpath:routes/messaging.yml
   application:
     name: ${APP_NAME:gateway}
   cloud:

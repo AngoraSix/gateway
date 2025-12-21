@@ -43,7 +43,7 @@ public class GatewaySecurityConfiguration {
                 "/management/tasks/project-management/**",
                 "/management/accounting/project-management/**").permitAll()
             .pathMatchers(HttpMethod.POST,
-                "/surveys/**").permitAll()
+                "/surveys/**", "/messaging/wakeup").permitAll()
             .anyExchange().authenticated()
         ).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
         .csrf(CsrfSpec::disable);
